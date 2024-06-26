@@ -1,0 +1,13 @@
+C:\src\BV2024WindModel\BV2024WindModel.Data\bin\Debug\netstandard2.0\BV2024WindModel.Data.deps.json
+C:\src\BV2024WindModel\BV2024WindModel.Data\bin\Debug\netstandard2.0\BV2024WindModel.Data.dll
+C:\src\BV2024WindModel\BV2024WindModel.Data\bin\Debug\netstandard2.0\BV2024WindModel.Data.pdb
+C:\src\BV2024WindModel\BV2024WindModel.Data\bin\Debug\netstandard2.0\BV2024WindModel.Abstractions.dll
+C:\src\BV2024WindModel\BV2024WindModel.Data\bin\Debug\netstandard2.0\BV2024WindModel.Abstractions.pdb
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.csproj.AssemblyReference.cache
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.AssemblyInfoInputs.cache
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.AssemblyInfo.cs
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.csproj.CoreCompileInputs.cache
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024Wi.154F9ADA.Up2Date
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.dll
+C:\src\BV2024WindModel\BV2024WindModel.Data\obj\Debug\netstandard2.0\BV2024WindModel.Data.pdb

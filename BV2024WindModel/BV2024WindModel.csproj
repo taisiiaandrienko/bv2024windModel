@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{48FE67A6-5A8B-479B-8BDC-94678759A521}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>BV2024WindModel</RootNamespace>
+    <AssemblyName>BV2024WindModel</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Clipper2Lib, Version=1.3.0.0, Culture=neutral, PublicKeyToken=ddeb3f68c442d6e4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Clipper2.1.3.0\lib\netstandard2.0\Clipper2Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PolygonOperation\clipper.cs" />
+    <Compile Include="PolygonOperation\ClipperBase.cs" />
+    <Compile Include="PolygonOperation\ClipperException.cs" />
+    <Compile Include="PolygonOperation\ClipperOffset.cs" />
+    <Compile Include="PolygonOperation\ClipType.cs" />
+    <Compile Include="PolygonOperation\Direction.cs" />
+    <Compile Include="PolygonOperation\DoublePoint.cs" />
+    <Compile Include="PolygonOperation\EdgeSide.cs" />
+    <Compile Include="PolygonOperation\EndType.cs" />
+    <Compile Include="PolygonOperation\Int128.cs" />
+    <Compile Include="PolygonOperation\IntersectNode.cs" />
+    <Compile Include="PolygonOperation\IntPoint.cs" />
+    <Compile Include="PolygonOperation\IntRect.cs" />
+    <Compile Include="PolygonOperation\Join.cs" />
+    <Compile Include="PolygonOperation\JoinType.cs" />
+    <Compile Include="PolygonOperation\LocalMinima.cs" />
+    <Compile Include="PolygonOperation\Maxima.cs" />
+    <Compile Include="PolygonOperation\MyIntersectNodeSort.cs" />
+    <Compile Include="PolygonOperation\OutPt.cs" />
+    <Compile Include="PolygonOperation\OutRec.cs" />
+    <Compile Include="PolygonOperation\PolyFillType.cs" />
+    <Compile Include="PolygonOperation\PolyNode.cs" />
+    <Compile Include="PolygonOperation\PolyTree.cs" />
+    <Compile Include="PolygonOperation\PolyType.cs" />
+    <Compile Include="PolygonOperation\Scanbeam.cs" />
+    <Compile Include="PolygonOperation\TEdge.cs" />
+    <Compile Include="PolygonPrinter.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BV2024WindModel.Abstractions\BV2024WindModel.Abstractions.csproj">
+      <Project>{aa14933f-191f-4f08-bd50-306f2f3a04ba}</Project>
+      <Name>BV2024WindModel.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BV2024WindModel.Data\BV2024WindModel.Data.csproj">
+      <Project>{f9584e47-d6c5-47eb-a8aa-1670d2b45d0b}</Project>
+      <Name>BV2024WindModel.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BV2024WindModel.Logic\BV2024WindModel.Logic.csproj">
+      <Project>{c9c2df1c-a312-410e-a9d6-dd463a9e18b6}</Project>
+      <Name>BV2024WindModel.Logic</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

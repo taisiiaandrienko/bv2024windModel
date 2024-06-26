@@ -1,0 +1,17 @@
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.exe.config
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.exe
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.pdb
+C:\src\BV2024WindModel\BV2024WindModel\obj\Debug\BV2024WindModel.csproj.AssemblyReference.cache
+C:\src\BV2024WindModel\BV2024WindModel\obj\Debug\BV2024WindModel.csproj.CoreCompileInputs.cache
+C:\src\BV2024WindModel\BV2024WindModel\obj\Debug\BV2024WindModel.exe
+C:\src\BV2024WindModel\BV2024WindModel\obj\Debug\BV2024WindModel.pdb
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\Clipper2Lib.dll
+C:\src\BV2024WindModel\BV2024WindModel\obj\Debug\BV2024Wi.4F247483.Up2Date
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.Abstractions.dll
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.Logic.dll
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.Abstractions.pdb
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.Logic.pdb
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\Newtonsoft.Json.dll
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\Newtonsoft.Json.xml
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.Data.dll
+C:\src\BV2024WindModel\BV2024WindModel\bin\Debug\BV2024WindModel.Data.pdb

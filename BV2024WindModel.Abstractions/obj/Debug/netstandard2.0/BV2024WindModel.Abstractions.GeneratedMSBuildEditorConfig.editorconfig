@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = BV2024WindModel.Abstractions
+build_property.ProjectDir = C:\src\BV2024WindModel\BV2024WindModel.Abstractions\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

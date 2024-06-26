@@ -1,0 +1,9 @@
+C:\src\BV2024WindModel\BV2024WindModel\bin\Release\BV2024WindModel.exe.config
+C:\src\BV2024WindModel\BV2024WindModel\bin\Release\BV2024WindModel.exe
+C:\src\BV2024WindModel\BV2024WindModel\bin\Release\BV2024WindModel.pdb
+C:\src\BV2024WindModel\BV2024WindModel\bin\Release\Clipper2Lib.dll
+C:\src\BV2024WindModel\BV2024WindModel\obj\Release\BV2024WindModel.csproj.AssemblyReference.cache
+C:\src\BV2024WindModel\BV2024WindModel\obj\Release\BV2024WindModel.csproj.CoreCompileInputs.cache
+C:\src\BV2024WindModel\BV2024WindModel\obj\Release\BV2024Wi.4F247483.Up2Date
+C:\src\BV2024WindModel\BV2024WindModel\obj\Release\BV2024WindModel.exe
+C:\src\BV2024WindModel\BV2024WindModel\obj\Release\BV2024WindModel.pdb
