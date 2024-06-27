@@ -42,52 +42,8 @@ namespace BV2024WindModel.Data
                     lineIndex++;
                 }
             }
-
-            /*
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            {
-                var records = csv.GetRecords<Container>();
-                if (records != null && records.Count() > 0)
-                {
-                    containers.AddRange(records);
-                }
-            }
-
-
-            
-           
-            
-            using (TextFieldParser csvParser = new TextFieldParser(path))
-            {
-                csvParser.CommentTokens = new string[] { "#" };
-                csvParser.SetDelimiters(new string[] { "," });
-                csvParser.HasFieldsEnclosedInQuotes = false;
-
-                // Skip the row with the column names
-                csvParser.ReadLine();
-
-                while (!csvParser.EndOfData)
-                {
-                    // Read current line fields, pointer moves to the next line.
-                    string[] fields = csvParser.ReadFields();
-                    string Name = fields[0];
-                    var lcg = float.Parse(fields[1]);
-                    var tcg = float.Parse(fields[2]);
-                    var vcg = float.Parse(fields[3]);
-                    var length = float.Parse(fields[4]);
-                    var width = float.Parse(fields[5]);
-                    var height = float.Parse(fields[6]);
-
-                    var container = new Container(lcg, tcg, vcg, length, width, height);
-                    containers.Add(container);
-
-                }
-            }
-            */
             return containers;
         }
     }
-
-
 
 }

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using BV2024WindModel.Abstractions;
@@ -11,6 +12,7 @@ using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
 
 namespace BV2024WindModel.Logic
 {
+
     public class BV2024WindCalculator : ICalculator<IEnumerable<Container>, IEnumerable<Surface>>
     {
         public IEnumerable<Surface> Calculate(in IEnumerable<Container> input)
@@ -18,8 +20,9 @@ namespace BV2024WindModel.Logic
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             var containers = input.ToList();
-            var frontSurfaces = containers.GroupBy(container => container.FrontSurface.Coordinate, container => container.FrontSurface.Polygon,
-                (key, g) => new PolygonsAtCoordinate { Coordinate = key, Polygons = g.ToList() }).ToList();
+            var frontSurfaces = containers.GroupBy(container => container.FrontSurface.Coordinate, container => container.FrontSurface.Paths,
+                //(key, g) => new Surface(key, g.ToList()) ).ToList();
+                (key, g) => new PolygonsAtCoordinate (key, g.ToList()) ).ToList();
 
             var aftProtectingSurfaces = GetProtectingSurfaces(containers, frontSurfaces);
 
@@ -61,19 +64,6 @@ namespace BV2024WindModel.Logic
 
         private static Surface GetWindExposedSurface(double alpha, List<Surface> aftProtectingSurfaces, PolygonsAtCoordinate frontSurface)
         {
-            
-            var frontSurfacePaths = new PathsD();
-            foreach (var polygon in  frontSurface.Polygons)
-            //for (var polygonIndex = 0; polygonIndex < frontSurface.Polygon.NumInnerPoly; polygonIndex++)
-            {
-                var path = new PathD();
-                foreach (var point in polygon.Points)
-                {
-                   path.Add(new PointD(point.X, point.Y ));
-                }
-                frontSurfacePaths.Add(path);
-            }
-
             foreach (var protectingSurface in aftProtectingSurfaces)
             {
                 if (protectingSurface.Coordinate > frontSurface.Coordinate && Math.Abs(protectingSurface.Coordinate - frontSurface.Coordinate) < 75)
@@ -85,74 +75,51 @@ namespace BV2024WindModel.Logic
                         var deflatedPaths = PolygonDeflator.DeflatePolygon(protectingSurface, frontSurface.Coordinate, alpha);
                         if (deflatedPaths != null)
                         {
-                            frontSurfacePaths = Clipper.Difference(frontSurfacePaths, deflatedPaths, FillRule.NonZero, 8);
-                            if (frontSurfacePaths.Count == 0)
+                            frontSurface.Paths = Clipper.Difference(frontSurface.Paths, deflatedPaths, FillRule.NonZero, 8);
+                            if (frontSurface.Paths.Count == 0)
                                 break;
-                           
                         }
                     }
                 }
-                
             }
-            var area = CalcArea(frontSurfacePaths);
-            Console.WriteLine($"X= {frontSurface.Coordinate}, Area= {area:f06}");
-
-            var frontSurfacePolygons = new List<PolyDefault>();
-            foreach (var frontSurfacePath in frontSurfacePaths)
-            {
-                var frontSurfacePolygon = new PolyDefault();
-                foreach (var point in frontSurfacePath)
-                {
-                    frontSurfacePolygon.add(point.x , point.y );
-                }
-                frontSurfacePolygons.Add(frontSurfacePolygon);
-            }
-            var windExposedFrontSurface = new Surface(frontSurface.Coordinate, frontSurfacePolygons);
+            var windExposedFrontSurface = new Surface(frontSurface.Coordinate, frontSurface.Paths);
             return windExposedFrontSurface;
         }
-        static double CalcArea(PathsD paths)
-        {
-            double totalArea = 0;
-            for (int i = 0; i < paths.Count; i++)
-                totalArea += Clipper.Area(paths[i]);
-            return totalArea;
-        }
+        
         private static bool NeedToCalculate(double alpha, PolygonsAtCoordinate frontSurface, Surface protectingSurface)
         {
             var needCalculate = false;
 
             var containersDist = Math.Abs(protectingSurface.Coordinate - frontSurface.Coordinate);
-            var deckHeight = protectingSurface.Polygon.getInnerPoly(0).Bounds.Y;
             var tg = Math.Tan(alpha * (Math.PI / 180));
             var offset = -tg * containersDist;
 
             var deflatedPolygons = new List<PolyDefault>();
-
-            for (var protectingPolygonIndex = 0; protectingPolygonIndex < protectingSurface.Polygon.NumInnerPoly; protectingPolygonIndex++)
+            foreach(var path in protectingSurface.Paths)
             {
-                var innerPoly = protectingSurface.Polygon.getInnerPoly(protectingPolygonIndex);
-                if (innerPoly.Bounds.Width > 2 * Math.Abs(offset) && innerPoly.Bounds.Height > Math.Abs(offset))
+                var width = path.Max(point => point.x) - path.Min(point => point.x);
+                var height = path.Max(point => point.y) - path.Min(point => point.y);
+                if (width > 2 * Math.Abs(offset) && height > Math.Abs(offset))
                 {
                     needCalculate = true;
                     break;
                 }
             }
-
             return needCalculate;
         }
 
         private static List<Surface> GetProtectingSurfaces(IEnumerable<Container> containersFromFile, List<PolygonsAtCoordinate> frontSurfaces)
         {
-            var aftSurfaces = containersFromFile.GroupBy(container => container.AftSurface.Coordinate, container => container.AftSurface.Polygon,
-                (key, g) => new PolygonsAtCoordinate { Coordinate = key, Polygons = g.ToList() }).ToList();
+            var aftSurfaces = containersFromFile.GroupBy(container => container.AftSurface.Coordinate, container => container.AftSurface.Paths,
+                (key, g) => new PolygonsAtCoordinate(key, g.ToList()) ).ToList();
             var crossingContainers = GetCrossingContainers(containersFromFile, frontSurfaces, aftSurfaces);
 
             var allAftContainers = new List<PolygonsAtCoordinate>();
             allAftContainers.AddRange(aftSurfaces);
             allAftContainers.AddRange(crossingContainers);
 
-            var allAftSurfaces = allAftContainers.GroupBy(container => container.Coordinate, container => container.Polygons,
-                (key, g) => new PolygonsAtCoordinate { Coordinate = key, Polygons = g.SelectMany(x => x).ToList() }).ToList();
+            var allAftSurfaces = allAftContainers.GroupBy(container => container.Coordinate, container => container.Paths,
+                (key, g) => new PolygonsAtCoordinate( key,  g.SelectMany(x => x).ToList()) ).ToList();
 
             var aftInflatedProtectingSurfacesBag = new ConcurrentBag<Surface>();
 
@@ -168,12 +135,14 @@ namespace BV2024WindModel.Logic
 
         private static List<Surface> GetUnitedProtectingSurfaces(List<PolygonsAtCoordinate> allAftSurfaces, ConcurrentBag<Surface> aftInflatedProtectingSurfacesBag)
         {
-            var inflator = new PolygonInflator();
+            var unionOffset = 0.3;
+            //var inflator = new PolygonInflator();
             var inflatedContainers = new List<PolyDefault>();
             foreach (var aftSurface in allAftSurfaces)
             //Parallel.ForEach(allAftSurfaces, aftSurface =>
             {
-                var protectingPolygonsAtCoordinate = inflator.InflateContainers(aftSurface.Polygons, 0.3);
+                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(aftSurface.Paths, unionOffset / 2, JoinType.Miter, EndType.Polygon);
+                //var protectingPolygonsAtCoordinate = inflator.InflateContainers(aftSurface.Paths, 0.3);
                 aftInflatedProtectingSurfacesBag.Add(new Surface(aftSurface.Coordinate, protectingPolygonsAtCoordinate));
             }//);
             var aftProtectingSurfaces = new List<Surface>();
@@ -181,7 +150,8 @@ namespace BV2024WindModel.Logic
             foreach (var aftSurface in aftInflatedProtectingSurfaces)
             //Parallel.ForEach(aftInflatedProtectingSurfaces, aftSurface =>
             {
-                var protectingPolygonsAtCoordinate = inflator.InflateContainers(new List<PolyDefault> { aftSurface.Polygon }, -0.3);
+                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(aftSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon);
+                //var protectingPolygonsAtCoordinate = inflator.InflateContainers(new List<PolyDefault> { aftSurface.Polygon }, -unionOffset / 2);
                 aftProtectingSurfaces.Add(new Surface(aftSurface.Coordinate, protectingPolygonsAtCoordinate));
             }//);
 
@@ -202,11 +172,8 @@ namespace BV2024WindModel.Logic
                     {
                         if (aftSurface.Coordinate - crossingCoordinate < 0.1 && crossingCoordinate <= aftSurface.Coordinate)
                         {
-                            crossingContainers.Add(new PolygonsAtCoordinate()
-                            {
-                                Coordinate = aftSurface.Coordinate,
-                                Polygons = crossingContainersAtCoordinate.Select(container => PolygonFactory.FromContainer(container)).ToList()
-                            });
+                            crossingContainers.Add(new PolygonsAtCoordinate(aftSurface.Coordinate, crossingContainersAtCoordinate.Select(container => new PathsD { container.PointsYZ }).ToList()));
+                            //crossingContainersAtCoordinate.Select(container => PolygonFactory.FromContainer(container)).ToList()));
                         }
                     }
                 }

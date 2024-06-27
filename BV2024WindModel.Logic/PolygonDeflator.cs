@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using BV2024WindModel.Abstractions;
 using Clipper2Lib;
 using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
@@ -12,70 +14,31 @@ namespace BV2024WindModel
     {
         public static PathsD DeflatePolygon(Surface protectingSurface, double protectedSurfaceCoordinate, double angle)
         {
-            
             var containersDist = Math.Abs(protectingSurface.Coordinate - protectedSurfaceCoordinate);
-            var deckHeight = protectingSurface.Polygon.getInnerPoly(0).Bounds.Y;
+            //var deckHeight = protectingSurface.Paths.Min(path => path.Min(point => point.y));
             var tg = Math.Tan(angle * (Math.PI / 180));
-            var offset = -tg * containersDist ;
+            var offset = -tg * containersDist;
 
-            //var deflatedPolygons = new List<PolyDefault>();
-
-            //var allDeflatedPaths = new PathsD();
-            var paths = new PathsD();
-            for (var polygonIndex = 0; polygonIndex < protectingSurface.Polygon.NumInnerPoly; polygonIndex++)
+            var pathsToDeflate = new PathsD();
+            foreach (var path in protectingSurface.Paths)
             {
-                var innerPoly = protectingSurface.Polygon.getInnerPoly(polygonIndex);
-
-                var path = new PathD();
-                foreach (var point in innerPoly.Points)
+                var deckHeight = path.Min(point => point.y);
+                var pathToDeflate = new PathD();
+                foreach (var point in path)
                 {
-                    if (point.Y < deckHeight + 0.01)
+                    if (point.y < deckHeight + 0.01)
                     {
-                        path.Add(new PointD(point.X, -1000)); 
+                        pathToDeflate.Add(new PointD(point.x, -1000));
                     }
                     else
                     {
-                        path.Add(new PointD(point.X , point.Y));
+                        pathToDeflate.Add(new PointD(point.x, point.y));
                     }
                 }
-                paths.Add(path);
-                /*
-                var deflatedPaths = Clipper.InflatePaths(new PathsD { path }, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
-
-                foreach (var deflatedPath in deflatedPaths)
-                { 
-                    allDeflatedPaths.Add(deflatedPath);
-                }*/
-
+                pathsToDeflate.Add(pathToDeflate);
             }
-            var allDeflatedPaths = Clipper.InflatePaths(paths, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
+            var allDeflatedPaths = Clipper.InflatePaths(pathsToDeflate, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
 
-            /*
-            foreach (var deflatedPath in deflatedPaths)
-            {
-                var deflatedPolygon = new PolyDefault();
-                foreach (var point in deflatedPath)
-                {
-                    if (point.Y < -100)
-                    {
-                        deflatedPolygon.add(point.X / 1000.0, deckHeight - 0.01);
-                    }
-                    else
-                    {
-                        deflatedPolygon.add(point.X / 1000.0, point.Y / 1000.0);
-                    }
-                }
-                deflatedPolygons.Add(deflatedPolygon);
-            }
-
-            }
-
-            if (deflatedPolygons.Count > 0)
-            {
-                var deflatedSurface = new Surface(protectedSurfaceCoordinate, deflatedPolygons); 
-                return deflatedSurface; 
-            }
-            */
             if (allDeflatedPaths.Count > 0)
             {
                 return allDeflatedPaths;
@@ -83,11 +46,14 @@ namespace BV2024WindModel
             return null;
         }
     }
-
+}
+    /*
     public class PolygonInflator
     {
-        public List<PolyDefault> InflateContainers(List<PolyDefault> polygons, double offset)
+        public List<PolyDefault> InflateContainers(PathD paths, double offset)
         {
+            offset /= 2;
+            
             offset = offset / 2 * 1000;
             var inflatedPolygons = new List<PolyDefault>();
 
@@ -114,10 +80,11 @@ namespace BV2024WindModel
                     }
                 }
             }
-            
+
             return inflatedPolygons;
         }
 
     }
+    */
 
-}
+

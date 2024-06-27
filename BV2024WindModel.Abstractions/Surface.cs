@@ -1,38 +1,56 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using Clipper2Lib;
 using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
 
 namespace BV2024WindModel.Abstractions
 {
     public class Surface
     {
-        public PolyDefault Polygon;
+        //public PolyDefault Polygon;
+        public PathsD Paths;
         public double Coordinate;
         public double Area
 
-        { get { return Polygon.Area; } }
-        public Surface(double coordinate, List<PointF> points)
+        { get { return AreaCalculator.CalcArea(Paths) ; } }
+        public Surface(double coordinate, List<PointD> points)
         {
             Coordinate = coordinate;
-            Polygon = new PolyDefault();
+            var paths = new PathD();
             foreach (var point in points)
             {
-                Polygon.add(point);
+                paths.Add(point);
+            }
+            Paths.Add(paths);
+        }
+        public Surface(double coordinate, PathD path)
+        {
+            Paths = new PathsD();
+            Coordinate = coordinate;
+            Paths.Add(path);
+        }
+        public Surface(double coordinate, PathsD paths)
+        {
+            Coordinate = coordinate;
+            Paths = paths;
+        }
+        public Surface(double coordinate, List<PathD> paths)
+        {
+            Coordinate = coordinate;
+            Paths = new PathsD();
+            foreach (var path in paths)
+            {
+                Paths.Add(path);
             }
         }
-        public Surface(double coordinate, PolyDefault polygon)
+        public Surface(double coordinate, List<PathsD> paths)
         {
             Coordinate = coordinate;
-            Polygon = new PolyDefault(polygon);
-        }
-        public Surface(double coordinate, List<PolyDefault> polygons)
-        {
-            Coordinate = coordinate;
-            Polygon = new PolyDefault();
-            foreach(var polygon in polygons)
+            Paths = new PathsD();
+            foreach (var path in paths)
             {
-                Polygon = Polygon.union(polygon) as PolyDefault;
-                
+                Paths.Union(path);
             }
         }
     }
