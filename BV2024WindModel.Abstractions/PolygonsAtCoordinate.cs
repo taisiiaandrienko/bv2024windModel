@@ -10,23 +10,15 @@ namespace BV2024WindModel
     {
         public double Coordinate;
         public PathsD Paths;
-        public PolygonsAtCoordinate(double coordinate, List<PathsD> paths)
+        public PolygonsAtCoordinate(double coordinate, List<PathsD> listOfPaths)
         {
             Coordinate = coordinate;
-            Paths = new PathsD();
-            foreach (var path in paths)
-            {
-                Paths.Union(path);
-            }
+            Paths = PathsFactory.FromListOfPaths(listOfPaths); 
         }
         public PolygonsAtCoordinate(double coordinate, List<PathD> paths)
         {
             Coordinate = coordinate;
-            Paths = new PathsD();
-            foreach (var path in paths)
-            {
-                Paths.Add(path);
-            }
+            Paths = PathsFactory.FromListOfPath(paths);
         }
     }
     

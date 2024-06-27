@@ -38,20 +38,12 @@ namespace BV2024WindModel.Abstractions
         public Surface(double coordinate, List<PathD> paths)
         {
             Coordinate = coordinate;
-            Paths = new PathsD();
-            foreach (var path in paths)
-            {
-                Paths.Add(path);
-            }
+            Paths = PathsFactory.FromListOfPath(paths);
         }
         public Surface(double coordinate, List<PathsD> paths)
         {
             Coordinate = coordinate;
-            Paths = new PathsD();
-            foreach (var path in paths)
-            {
-                Paths.Union(path);
-            }
+            Paths = PathsFactory.FromListOfPaths(paths);
         }
     }
 

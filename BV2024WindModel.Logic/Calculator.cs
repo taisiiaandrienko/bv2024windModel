@@ -21,8 +21,8 @@ namespace BV2024WindModel.Logic
             stopWatch.Start();
             var containers = input.ToList();
             var frontSurfaces = containers.GroupBy(container => container.FrontSurface.Coordinate, container => container.FrontSurface.Paths,
-                //(key, g) => new Surface(key, g.ToList()) ).ToList();
                 (key, g) => new PolygonsAtCoordinate (key, g.ToList()) ).ToList();
+            //(key, g) => new Surface(key, g.ToList()) ).ToList();
 
             var aftProtectingSurfaces = GetProtectingSurfaces(containers, frontSurfaces);
 

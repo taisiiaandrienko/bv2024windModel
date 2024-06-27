@@ -25,6 +25,15 @@ namespace BV2024WindModel
             }
             return newPaths;
         }
+        public static PathsD FromListOfPath(IEnumerable<PathD> listOfPath)
+        {
+            var newPaths = new PathsD();
+            foreach (var path in listOfPath)
+            {
+                newPaths.Add(path);
+            }
+            return newPaths;
+        }
         public static PathD FromPoints( IEnumerable<PointD> points)
         {
             var path = new PathD();

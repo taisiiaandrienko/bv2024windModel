@@ -47,44 +47,4 @@ namespace BV2024WindModel
         }
     }
 }
-    /*
-    public class PolygonInflator
-    {
-        public List<PolyDefault> InflateContainers(PathD paths, double offset)
-        {
-            offset /= 2;
-            
-            offset = offset / 2 * 1000;
-            var inflatedPolygons = new List<PolyDefault>();
-
-            foreach (var polygon in polygons)
-            {
-                for (var polygonIndex = 0; polygonIndex < polygon.NumInnerPoly; polygonIndex++)
-                {
-                    var innerPoly = polygon.getInnerPoly(polygonIndex);
-                    var path = new Path64();
-                    foreach (var point in innerPoly.Points)
-                    {
-                        path.Add(new Point64(point.X * 1000, point.Y * 1000));
-                    }
-                    var inflatedPaths = Clipper.InflatePaths(new Paths64 { path }, offset, JoinType.Miter, EndType.Polygon);
-
-                    foreach (var inflatedPath in inflatedPaths)
-                    {
-                        var inflatedPolygon = new PolyDefault();
-                        foreach (var point in inflatedPath)
-                        {
-                            inflatedPolygon.add(point.X / 1000.0, point.Y / 1000.0);
-                        }
-                        inflatedPolygons.Add(inflatedPolygon);
-                    }
-                }
-            }
-
-            return inflatedPolygons;
-        }
-
-    }
-    */
-
-
+   
