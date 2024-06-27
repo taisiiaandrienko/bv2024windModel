@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using BV2024WindModel.Abstractions;
 using Clipper2Lib;
 using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
@@ -18,6 +19,8 @@ namespace BV2024WindModel
             var offset = -tg * containersDist ;
 
             //var deflatedPolygons = new List<PolyDefault>();
+
+            //var allDeflatedPaths = new PathsD();
             var paths = new PathsD();
             for (var polygonIndex = 0; polygonIndex < protectingSurface.Polygon.NumInnerPoly; polygonIndex++)
             {
@@ -36,9 +39,17 @@ namespace BV2024WindModel
                     }
                 }
                 paths.Add(path);
-            }
+                /*
+                var deflatedPaths = Clipper.InflatePaths(new PathsD { path }, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
 
-            var deflatedPaths = Clipper.InflatePaths(paths, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
+                foreach (var deflatedPath in deflatedPaths)
+                { 
+                    allDeflatedPaths.Add(deflatedPath);
+                }*/
+
+            }
+            var allDeflatedPaths = Clipper.InflatePaths(paths, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
+
             /*
             foreach (var deflatedPath in deflatedPaths)
             {
@@ -65,9 +76,9 @@ namespace BV2024WindModel
                 return deflatedSurface; 
             }
             */
-            if (deflatedPaths.Count > 0)
+            if (allDeflatedPaths.Count > 0)
             {
-                return deflatedPaths;
+                return allDeflatedPaths;
             }
             return null;
         }

@@ -16,7 +16,7 @@ namespace BV2024WindModel
         static void Main(string[] args)
         {
            
-            var containersFromFile = ReadCSV.ReadFromCsv("C:\\windLoadFiles\\wind7.csv");
+            var containersFromFile = ReadCSV.ReadFromCsv("C:\\windLoadFiles\\wind9.csv");
 
             var calculator = new BV2024WindCalculator();
 
@@ -34,7 +34,7 @@ namespace BV2024WindModel
             Console.WriteLine("Exposed ");
             foreach (var windExposedFrontSurface in windExposedFrontSurfaces)
             {
-                Console.WriteLine($"X= {windExposedFrontSurface.Coordinate}, Area= {windExposedFrontSurface.Area:f03}");
+                Console.WriteLine($"X= {windExposedFrontSurface.Coordinate}, Area= {windExposedFrontSurface.Area:f06}");
             }
 
             /*Parallel.ForEach(aftSurfaces, aftSurface =>
