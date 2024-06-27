@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BV2024WindModel.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6af08af8302613c0c4e6c2f68afd6aecdb8dd5d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dbeb100bad4085a458dadf0d72373b5598357bee")]
 [assembly: System.Reflection.AssemblyProductAttribute("BV2024WindModel.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BV2024WindModel.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

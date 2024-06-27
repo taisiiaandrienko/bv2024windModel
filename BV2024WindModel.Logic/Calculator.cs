@@ -14,8 +14,8 @@ namespace BV2024WindModel.Logic
     {
         public IEnumerable<Surface> Calculate(in IEnumerable<Container> input)
         {
-            //var stopWatch = new Stopwatch();
-           // stopWatch.Start();
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             var containers = input.ToList();
             var frontSurfaces = containers.GroupBy(container => container.FrontSurface.Coordinate, container => container.FrontSurface.Polygon,
                 (key, g) => new PolygonsAtCoordinate { Coordinate = key, Polygons = g.ToList() }).ToList();
@@ -28,14 +28,19 @@ namespace BV2024WindModel.Logic
             buildingFrontPolygons.Add(building.FrontSurface.Polygon);
             frontSurfaces.Add(new PolygonsAtCoordinate { Coordinate = building.FrontSurface.Coordinate, Polygons = buildingFrontPolygons });
             aftProtectingSurfaces.Add(building.AftSurface);
-            //stopWatch.Stop();
-            //Console.WriteLine($"Data preparation time{stopWatch.ElapsedMilliseconds}");
-            //stopWatch.Restart();
+            stopWatch.Stop();
+            Console.WriteLine($"Data preparation time{stopWatch.ElapsedMilliseconds}");
+            stopWatch.Restart();
             double alpha = 25;
             var windExposedFrontSurfaces = GetWindExposedSurfaces(alpha, frontSurfaces, aftProtectingSurfaces);
-            //stopWatch.Stop();
-            //Console.WriteLine($"Calculation time{stopWatch.ElapsedMilliseconds}");
+            stopWatch.Stop();
+            Console.WriteLine($"Calculation time{stopWatch.ElapsedMilliseconds}");
+            foreach (var windExposedFrontSurface in aftProtectingSurfaces)
+            {
+                Console.WriteLine($"X= {windExposedFrontSurface.Coordinate}");
+            }
             return windExposedFrontSurfaces;
+            
         }
 
         private static List<Surface> GetWindExposedSurfaces(double alpha, List<PolygonsAtCoordinate> frontSurfaces, List<Surface> aftProtectingSurfaces)
@@ -80,11 +85,11 @@ namespace BV2024WindModel.Logic
                         if (deflatedPaths != null)
                         {
                             frontSurfacePaths = Clipper.Difference(frontSurfacePaths, deflatedPaths, FillRule.NonZero, 8);
-                            if (frontSurfacePaths.Capacity == 0)
+                            if (frontSurfacePaths.Count == 0)
                                 break;
                            
                         }
-                        if (frontSurfacePaths.Capacity == 0)
+                        if (frontSurfacePaths.Count == 0)
                             break;
                         /*if (deflatedSurface != null)
                         {

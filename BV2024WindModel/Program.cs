@@ -15,20 +15,15 @@ namespace BV2024WindModel
 
         static void Main(string[] args)
         {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            var containersFromFile = ReadCSV.ReadFromCsv("C:\\windLoadFiles\\wind9.csv");
+           
+            var containersFromFile = ReadCSV.ReadFromCsv("C:\\windLoadFiles\\wind7.csv");
 
             var calculator = new BV2024WindCalculator();
 
             var windExposedFrontSurfaces = calculator.Calculate(containersFromFile);
 
             var windCalculationResults = WindCalculationResultFactory.Create(windExposedFrontSurfaces);
-            stopWatch.Stop();
-            var calculationsTime = stopWatch.Elapsed;
-            Console.WriteLine($"Calculations time {calculationsTime.Milliseconds} ");
-
-
+           
             string windResultsSerialized = JsonConvert.SerializeObject(windCalculationResults, Formatting.Indented);
             
 
