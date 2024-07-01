@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
-using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
-using BV2024WindModel.Abstractions;
 using Clipper2Lib;
 
 namespace BV2024WindModel
@@ -15,37 +12,34 @@ namespace BV2024WindModel
         */
         public static PathsD FromListOfPaths(IEnumerable<PathsD> listOfPaths)
         {
-            var newPaths = new PathsD();
-            foreach (var paths in listOfPaths)
-            {
-                foreach (var path in paths)
-                { 
-                    newPaths.Add(path);
-                }
-            }
-            return newPaths;
+             var newPaths = new PathsD();
+             foreach (var paths in listOfPaths)
+             {
+                 foreach (var path in paths)
+                 { 
+                     newPaths.Add(path);
+                 }
+             }
+             return newPaths;
         }
         public static PathsD FromListOfPath(IEnumerable<PathD> listOfPath)
         {
-            var newPaths = new PathsD();
-            foreach (var path in listOfPath)
-            {
-                newPaths.Add(path);
-            }
-            return newPaths;
+             var newPaths = new PathsD();
+             foreach (var path in listOfPath)
+             {
+                 newPaths.Add(path);
+             }
+             return newPaths;
         }
         public static PathD FromPoints( IEnumerable<PointD> points)
         {
-            var path = new PathD();
-            foreach (var point in points)
-            {
-                path.Add(point);
-            }
-            return path;
+             var path = new PathD();
+             foreach (var point in points)
+             {
+                 path.Add(point);
+             }
+             return path;
         }
     }
-    
-
 
 }
-         

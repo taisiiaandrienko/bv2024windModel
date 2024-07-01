@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using Clipper2Lib;
-using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
 
 namespace BV2024WindModel.Abstractions
 {
     public class Surface
     {
         //public PolyDefault Polygon;
+
         public PathsD Paths;
         public double Coordinate;
         public double Area

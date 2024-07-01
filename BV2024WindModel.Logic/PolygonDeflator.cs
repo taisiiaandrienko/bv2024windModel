@@ -26,14 +26,7 @@ namespace BV2024WindModel
                 var pathToDeflate = new PathD();
                 foreach (var point in path)
                 {
-                    if (point.y < deckHeight + 0.01)
-                    {
-                        pathToDeflate.Add(new PointD(point.x, -1000));
-                    }
-                    else
-                    {
-                        pathToDeflate.Add(new PointD(point.x, point.y));
-                    }
+                    Grounding(deckHeight, pathToDeflate, point);
                 }
                 pathsToDeflate.Add(pathToDeflate);
             }
@@ -44,6 +37,18 @@ namespace BV2024WindModel
                 return allDeflatedPaths;
             }
             return null;
+        }
+
+        private static void Grounding(double deckHeight, PathD pathToDeflate, PointD point)
+        {
+            if (point.y < deckHeight + 0.01)
+            {
+                pathToDeflate.Add(new PointD(point.x, -1000));
+            }
+            else
+            {
+                pathToDeflate.Add(new PointD(point.x, point.y));
+            }
         }
     }
 }

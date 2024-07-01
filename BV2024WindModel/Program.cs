@@ -1,11 +1,6 @@
 ﻿using System;
 using BV2024WindModel.Logic;
-using System.IO;
-using Newtonsoft.Json;
-using System.Xml.Linq;
 using BV2024WindModel.Data;
-using System.Threading;
-using System.Diagnostics;
 
 namespace BV2024WindModel
 {
@@ -20,8 +15,30 @@ namespace BV2024WindModel
 
             var calculator = new BV2024WindCalculator();
 
-            var windExposedFrontSurfaces = calculator.Calculate(containersFromFile);
+            var longitudeWindExposedSurfaces = calculator.Calculate(containersFromFile);
 
+            foreach (var windExposedFrontSurface in longitudeWindExposedSurfaces.Fore)
+            {
+                var windArea = 0.0; 
+                foreach (var containerResult in windExposedFrontSurface.Result)
+                {
+                    windArea += containerResult.Area;
+                //string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
+                //Console.WriteLine($"Id= {containerResult.ContainerId}, Area= {containerResult.Area:f06}, Points= {polygon}");
+                } 
+                Console.WriteLine($"XFore= {windExposedFrontSurface.Coordinate}, Area= {windArea:f06}");
+            }
+            foreach (var windExposedFrontSurface in longitudeWindExposedSurfaces.Aft)
+            {
+                var windArea = 0.0;
+                foreach (var containerResult in windExposedFrontSurface.Result)
+                {
+                    windArea += containerResult.Area;
+                }
+                Console.WriteLine($"XAft= {windExposedFrontSurface.Coordinate}, Area= {windArea:f06}");
+            }
+
+            /*
             var windCalculationResults = WindCalculationResultFactory.Create(windExposedFrontSurfaces);
            
             string windResultsSerialized = JsonConvert.SerializeObject(windCalculationResults, Formatting.Indented);
@@ -35,7 +52,7 @@ namespace BV2024WindModel
             foreach (var windExposedFrontSurface in windExposedFrontSurfaces)
             {
                 Console.WriteLine($"X= {windExposedFrontSurface.Coordinate}, Area= {windExposedFrontSurface.Area:f06}");
-            }
+            }*/
 
             /*Parallel.ForEach(aftSurfaces, aftSurface =>
              {

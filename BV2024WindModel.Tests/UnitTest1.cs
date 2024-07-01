@@ -19,7 +19,7 @@ namespace BV2024WindModel.Tests
 
             var windExposedFrontSurfaces = calculator.Calculate(containersFromFile);
 
-            var windCalculationResults = WindCalculationResultFactory.Create(windExposedFrontSurfaces).OrderBy(entry => entry.Coordinate).ToList();
+            var windCalculationResults = WindCalculationResultFactory.Create(windExposedFrontSurfaces.Fore).OrderBy(entry => entry.Coordinate).ToList();
 
             string referenceWindResultsSerialized = File.ReadAllText(inputReferenceResultsFileName);
 

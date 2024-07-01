@@ -5,6 +5,7 @@ namespace BV2024WindModel.Abstractions
 {
     public class Quader
     {
+        public string id;
         private double lcg;
         private double tcg;
         private double basis;
@@ -12,13 +13,14 @@ namespace BV2024WindModel.Abstractions
         private double width;
         private double height;
         public Surface AftSurface;
-        public Surface FrontSurface;
+        public Surface ForeSurface;
         public Surface PortsideSurface;
         public Surface StarboardSurface;
-        public PathD PointsXZ;
-        public PathD PointsYZ;
-        public Quader(double lcg, double tcg, double basis, double length, double width, double height)
+        public PathsD PointsXZ;
+        public PathsD PointsYZ; 
+        public Quader(string id, double lcg, double tcg, double basis, double length, double width, double height)
         {
+            this.id = id;
             this.lcg = lcg;
             this.tcg = tcg;
             this.basis = basis;
@@ -29,16 +31,30 @@ namespace BV2024WindModel.Abstractions
             double[] yCoord = { tcg + width / 2, tcg - width / 2 };
             double[] zCoord = { basis + height, basis };
 
-            PointsYZ = new PathD
-            {
-                new PointD(yCoord[0],zCoord[0]),
-                new PointD(yCoord[1],zCoord[0]),
-                new PointD(yCoord[1],zCoord[1]),
-                new PointD(yCoord[0],zCoord[1])
+            PointsYZ = new PathsD
+            { new PathD
+                {
+                    new PointD(yCoord[0],zCoord[0]),
+                    new PointD(yCoord[1],zCoord[0]),
+                    new PointD(yCoord[1],zCoord[1]),
+                    new PointD(yCoord[0],zCoord[1])
+                }
             };
-            AftSurface = new Surface(Math.Round(lcg - length / 2, 2), PointsYZ);
-            FrontSurface = new Surface(Math.Round(lcg + length / 2, 2), PointsYZ);
 
+            PointsXZ = new PathsD
+            { new PathD
+                {
+                    new PointD(xCoord[0],zCoord[0]),
+                    new PointD(xCoord[1],zCoord[0]),
+                    new PointD(xCoord[1],zCoord[1]),
+                    new PointD(xCoord[0],zCoord[1])
+                }
+            };
+
+            AftSurface = new Surface(Math.Round(lcg - length / 2, 2), PointsYZ);
+            ForeSurface = new Surface(Math.Round(lcg + length / 2, 2), PointsYZ);
+            PortsideSurface = new Surface(Math.Round(tcg - width / 2, 3), PointsXZ); 
+            StarboardSurface = new Surface(Math.Round(tcg + width / 2, 3), PointsXZ);
         }
 
     }

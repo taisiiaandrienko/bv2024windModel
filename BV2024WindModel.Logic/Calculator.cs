@@ -1,10 +1,11 @@
-﻿using System;
+﻿//#define PARALLEL
+
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
+using System.Threading.Tasks;
 using BV2024WindModel.Abstractions;
 using Clipper2Lib;
 using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
@@ -13,89 +14,119 @@ using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
 namespace BV2024WindModel.Logic
 {
 
-    public class BV2024WindCalculator : ICalculator<IEnumerable<Container>, IEnumerable<Surface>>
+    public class BV2024WindCalculator : ICalculator<IEnumerable<Container>, LongitudinalSurfacesCalculationResult>
     {
-        public IEnumerable<Surface> Calculate(in IEnumerable<Container> input)
+        
+        public LongitudinalSurfacesCalculationResult Calculate(in IEnumerable<Container> input)
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
+
             var containers = input.ToList();
-            var frontSurfaces = containers.GroupBy(container => container.FrontSurface.Coordinate, container => container.FrontSurface.Paths,
-                (key, g) => new PolygonsAtCoordinate (key, g.ToList()) ).ToList();
-            //(key, g) => new Surface(key, g.ToList()) ).ToList();
+            var foreSurfaces = containers.GroupBy(container => container.ForeSurface.Coordinate, container => container,
+                (key, g) => new ContainersAtCoordinate(key, g.ToList(), ContainerEnd.Fore)).ToList();
 
-            var aftProtectingSurfaces = GetProtectingSurfaces(containers, frontSurfaces);
+            var aftSurfaces = containers.GroupBy(container => container.AftSurface.Coordinate, container => container,
+                (key, g) => new ContainersAtCoordinate(key, g.ToList(), ContainerEnd.Aft)).ToList();
 
-            var building = new Building(212.65, 0, 29, 14.3, 50, 33);
-
-            //var buildingFrontPolygons = new List<PolyDefault>();
-            //buildingFrontPolygons.Add(building.FrontSurface.Polygon);
-           // frontSurfaces.Add(new PolygonsAtCoordinate { Coordinate = building.FrontSurface.Coordinate, Polygons = buildingFrontPolygons });
+            var aftProtectingSurfaces = GetProtectingSurfaces(containers, foreSurfaces, aftSurfaces, ContainerEnd.Aft); 
+            var foreProtectingSurfaces = GetProtectingSurfaces(containers, foreSurfaces, aftSurfaces, ContainerEnd.Fore);
+             
+            var building = new Building("1", 212.65, 0, 29, 14.3, 50, 33); 
             aftProtectingSurfaces.Add(building.AftSurface);
+            foreProtectingSurfaces.Add(building.ForeSurface);
+
+
             stopWatch.Stop();
             Console.WriteLine($"Data preparation time {stopWatch.ElapsedMilliseconds}ms");
             stopWatch.Restart();
             double alpha = 25;
-            var windExposedFrontSurfaces = GetWindExposedSurfaces(alpha, frontSurfaces, aftProtectingSurfaces);
+
+            var windExposedForeSurfaces = GetWindExposedSurfaces(alpha, foreSurfaces, aftProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
+            var windExposedAftSurfaces = GetWindExposedSurfaces(alpha, aftSurfaces, foreProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
+
             stopWatch.Stop();
             Console.WriteLine($"Calculation time {stopWatch.ElapsedMilliseconds}ms");
             foreach (var windExposedFrontSurface in aftProtectingSurfaces)
             {
                 Console.WriteLine($"X= {windExposedFrontSurface.Coordinate}");
             }
-            return windExposedFrontSurfaces;
             
+            return new LongitudinalSurfacesCalculationResult(){ Fore = windExposedForeSurfaces, Aft = windExposedAftSurfaces };
+
         }
 
-        private static List<Surface> GetWindExposedSurfaces(double alpha, List<PolygonsAtCoordinate> frontSurfaces, List<Surface> aftProtectingSurfaces)
+        private static IEnumerable<LongitudinalSurfaceCalculationResult> GetWindExposedSurfaces(double alpha, List<ContainersAtCoordinate> affectedSurfaces, List<Surface> protectingSurfaces)
         {
-            var windExposedFrontSurfaces = new List<Surface>();
+            var windExposedSurfaces = new List<LongitudinalSurfaceCalculationResult>();
 
-            foreach (var frontSurface in frontSurfaces)
-            //Parallel.ForEach(frontSurfaces, frontSurface =>
+#if PARALLEL
+            Parallel.ForEach(affectedSurfaces, affectedSurface =>
+#else
+            foreach (var affectedSurface in affectedSurfaces)
+#endif
             {
-                Surface windExposedFrontSurface = GetWindExposedSurface(alpha, aftProtectingSurfaces, frontSurface);
-                windExposedFrontSurfaces.Add(windExposedFrontSurface);
-                
-            }//);
+                var windExposedSurface = GetWindExposedSurfaceCalculationResult(alpha, protectingSurfaces, affectedSurface);
+                windExposedSurfaces.Add(windExposedSurface);
 
-            return windExposedFrontSurfaces;
+            }
+#if PARALLEL
+            );
+#endif
+
+            return windExposedSurfaces;
         }
 
-        private static Surface GetWindExposedSurface(double alpha, List<Surface> aftProtectingSurfaces, PolygonsAtCoordinate frontSurface)
+        private static LongitudinalSurfaceCalculationResult GetWindExposedSurfaceCalculationResult(double alpha, List<Surface> protectingSurfaces, ContainersAtCoordinate affectedSurface)
         {
-            foreach (var protectingSurface in aftProtectingSurfaces)
+            var allWindExposedContainers = new List<ContainerCalculationResult>();
+            foreach (var container in affectedSurface.Containers)
             {
-                if (protectingSurface.Coordinate > frontSurface.Coordinate && Math.Abs(protectingSurface.Coordinate - frontSurface.Coordinate) < 75)
+                var windExposedPolygon = new PathsD(container.PointsYZ);
+
+                foreach (var protectingSurface in protectingSurfaces)
                 {
-                    bool needCalculate = NeedToCalculate(alpha, frontSurface, protectingSurface);
-
-                    if (needCalculate)
+                    if (protectingSurface.Coordinate > affectedSurface.Coordinate && Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate) < 75)
                     {
-                        var deflatedPaths = PolygonDeflator.DeflatePolygon(protectingSurface, frontSurface.Coordinate, alpha);
-                        if (deflatedPaths != null)
+                        bool needCalculate = NeedToCalculate(alpha, affectedSurface, protectingSurface);
+
+                        if (needCalculate)
                         {
-                            frontSurface.Paths = Clipper.Difference(frontSurface.Paths, deflatedPaths, FillRule.NonZero, 8);
-                            if (frontSurface.Paths.Count == 0)
-                                break;
+                            var deflatedPaths = PolygonDeflator.DeflatePolygon(protectingSurface, affectedSurface.Coordinate, alpha);
+                            if (deflatedPaths != null)
+                            {
+
+                                windExposedPolygon = Clipper.Difference(windExposedPolygon, deflatedPaths, FillRule.NonZero, 8);
+
+                            }
                         }
                     }
                 }
+                var containerCalculationResult = new ContainerCalculationResult
+                {
+                    ContainerId = container.id,
+                    WindExposedPolygon = windExposedPolygon,
+                    Area = AreaCalculator.CalcArea(windExposedPolygon)
+                };
+                allWindExposedContainers.Add(containerCalculationResult);
             }
-            var windExposedFrontSurface = new Surface(frontSurface.Coordinate, frontSurface.Paths);
+
+            var windExposedFrontSurface = new LongitudinalSurfaceCalculationResult { Result = allWindExposedContainers, End = affectedSurface.End, Coordinate = affectedSurface.Coordinate };
+
+            //(frontSurface.Coordinate, frontSurface.Paths);
             return windExposedFrontSurface;
         }
-        
-        private static bool NeedToCalculate(double alpha, PolygonsAtCoordinate frontSurface, Surface protectingSurface)
+
+        private static bool NeedToCalculate(double alpha, ContainersAtCoordinate affectedSurface, Surface protectingSurface)
         {
             var needCalculate = false;
 
-            var containersDist = Math.Abs(protectingSurface.Coordinate - frontSurface.Coordinate);
+            var containersDist = Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate);
             var tg = Math.Tan(alpha * (Math.PI / 180));
             var offset = -tg * containersDist;
 
             var deflatedPolygons = new List<PolyDefault>();
-            foreach(var path in protectingSurface.Paths)
+            foreach (var path in protectingSurface.Paths)
             {
                 var width = path.Max(point => point.x) - path.Min(point => point.x);
                 var height = path.Max(point => point.y) - path.Min(point => point.y);
@@ -108,84 +139,113 @@ namespace BV2024WindModel.Logic
             return needCalculate;
         }
 
-        private static List<Surface> GetProtectingSurfaces(IEnumerable<Container> containersFromFile, List<PolygonsAtCoordinate> frontSurfaces)
+        private static List<Surface> GetProtectingSurfaces(IEnumerable<Container> containersFromFile, List<ContainersAtCoordinate> foreSurfaces, List<ContainersAtCoordinate> aftSurfaces, ContainerEnd protectingFrom)
         {
-            var aftSurfaces = containersFromFile.GroupBy(container => container.AftSurface.Coordinate, container => container.AftSurface.Paths,
-                (key, g) => new PolygonsAtCoordinate(key, g.ToList()) ).ToList();
-            var crossingContainers = GetCrossingContainers(containersFromFile, frontSurfaces, aftSurfaces);
+            var crossingContainers = GetCrossingContainers(containersFromFile, foreSurfaces, aftSurfaces, protectingFrom);
 
-            var allAftContainers = new List<PolygonsAtCoordinate>();
-            allAftContainers.AddRange(aftSurfaces);
-            allAftContainers.AddRange(crossingContainers);
-
-            var allAftSurfaces = allAftContainers.GroupBy(container => container.Coordinate, container => container.Paths,
-                (key, g) => new PolygonsAtCoordinate( key,  g.SelectMany(x => x).ToList()) ).ToList();
-
-            var aftInflatedProtectingSurfacesBag = new ConcurrentBag<Surface>();
-
-            /*Parallel.ForEach(aftSurfaces, aftSurface =>
-             {
-                 var protectingPolygonsAtCoordinate = inflator.InflateContainers(aftSurface.Polygons, 0.3);
-                 aftInflatedProtectingSurfacesBag.Add(new Surface(aftSurface.Coordinate, protectingPolygonsAtCoordinate));
-             });*/
-            var aftProtectingSurfaces = GetUnitedProtectingSurfaces(allAftSurfaces, aftInflatedProtectingSurfacesBag);
-
-            return aftProtectingSurfaces;
+            var protectingContainers = (protectingFrom == ContainerEnd.Aft) ? aftSurfaces : foreSurfaces;
+            var allProtectingContainers = new List<ContainersAtCoordinate>();
+            allProtectingContainers.AddRange(protectingContainers);
+            allProtectingContainers.AddRange(crossingContainers);
+            
+            var allProtectingSurfaces = allProtectingContainers.GroupBy(container => container.Coordinate, container => container,
+                (key, g) => new ContainersAtCoordinate(key, g.SelectMany(x => x.Containers).ToList(), protectingFrom)).ToList();
+             
+            var unitedProtectingSurfaces = GetUnitedProtectingSurfaces(allProtectingSurfaces); 
+            return unitedProtectingSurfaces;
         }
 
-        private static List<Surface> GetUnitedProtectingSurfaces(List<PolygonsAtCoordinate> allAftSurfaces, ConcurrentBag<Surface> aftInflatedProtectingSurfacesBag)
+        private static List<Surface> GetUnitedProtectingSurfaces(List<ContainersAtCoordinate> protectingSurfaces)
         {
+            var inflatedProtectingSurfacesBag = new ConcurrentBag<Surface>();
             var unionOffset = 0.3;
-            //var inflator = new PolygonInflator();
-            var inflatedContainers = new List<PolyDefault>();
-            foreach (var aftSurface in allAftSurfaces)
-            //Parallel.ForEach(allAftSurfaces, aftSurface =>
-            {
-                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(aftSurface.Paths, unionOffset / 2, JoinType.Miter, EndType.Polygon);
-                //var protectingPolygonsAtCoordinate = inflator.InflateContainers(aftSurface.Paths, 0.3);
-                aftInflatedProtectingSurfacesBag.Add(new Surface(aftSurface.Coordinate, protectingPolygonsAtCoordinate));
-            }//);
-            var aftProtectingSurfaces = new List<Surface>();
-            var aftInflatedProtectingSurfaces = aftInflatedProtectingSurfacesBag.ToList();
-            foreach (var aftSurface in aftInflatedProtectingSurfaces)
-            //Parallel.ForEach(aftInflatedProtectingSurfaces, aftSurface =>
-            {
-                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(aftSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon);
-                //var protectingPolygonsAtCoordinate = inflator.InflateContainers(new List<PolyDefault> { aftSurface.Polygon }, -unionOffset / 2);
-                aftProtectingSurfaces.Add(new Surface(aftSurface.Coordinate, protectingPolygonsAtCoordinate));
-            }//);
 
-            return aftProtectingSurfaces;
+#if PARALLEL
+            Parallel.ForEach(allAftSurfaces, aftSurface =>
+#else
+            foreach (var protectingSurface in protectingSurfaces)
+#endif
+            {
+                var allContainers = new PathsD();
+                foreach (var container in protectingSurface.Containers)
+                {
+                    foreach (var path in container.PointsYZ)
+                    {
+                        allContainers.Add(path);
+                    }
+                }
+                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(allContainers, unionOffset / 2, JoinType.Miter, EndType.Polygon);
+                inflatedProtectingSurfacesBag.Add(new Surface(protectingSurface.Coordinate, protectingPolygonsAtCoordinate));
+            }
+#if PARALLEL
+            );
+#endif
+            var unitedProtectingSurfaces = new List<Surface>();
+            var inflatedProtectingSurfaces = inflatedProtectingSurfacesBag.ToList();
+
+#if PARALLEL
+            Parallel.ForEach(inflatedProtectingSurfaces, inflatedSurface =>
+#else
+            foreach (var inflatedSurface in inflatedProtectingSurfaces)
+#endif
+            {
+                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(inflatedSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon);
+                unitedProtectingSurfaces.Add(new Surface(inflatedSurface.Coordinate, protectingPolygonsAtCoordinate));
+            }
+#if PARALLEL
+        );
+#endif
+
+            return unitedProtectingSurfaces;
         }
 
-        private static List<PolygonsAtCoordinate> GetCrossingContainers(IEnumerable<Container> containersFromFile, List<PolygonsAtCoordinate> frontSurfaces, List<PolygonsAtCoordinate> aftSurfaces)
+        private static List<ContainersAtCoordinate> GetCrossingContainers(IEnumerable<Container> containersFromFile, List<ContainersAtCoordinate> foreSurfaces, List<ContainersAtCoordinate> aftSurfaces, ContainerEnd crossingAtEnd)
         {
-            var crossingContainers = new List<PolygonsAtCoordinate>();
-            foreach (var frontSurface in frontSurfaces)
+            var crossingContainers = new List<ContainersAtCoordinate>();
+
+            var windAffectedSurfaces = (crossingAtEnd == ContainerEnd.Aft) ? foreSurfaces: aftSurfaces;
+            var windProtectingSurfaces = (crossingAtEnd == ContainerEnd.Fore) ? foreSurfaces : aftSurfaces;
+#if PARALLEL
+            Parallel.ForEach(windAffectedSurfaces, windAffectedSurface =>
+#else
+            foreach (var windAffectedSurface in windAffectedSurfaces)
+#endif
             {
-                var crossingCoordinate = frontSurface.Coordinate + 0.01;
+                var crossingCoordinate = (crossingAtEnd == ContainerEnd.Aft) ? windAffectedSurface.Coordinate + 0.01: windAffectedSurface.Coordinate - 0.01;
                 var crossingContainersAtCoordinate = containersFromFile.Where(container => IsInside(container, crossingCoordinate));
 
                 if (crossingContainersAtCoordinate.Count() > 0)
                 {
-                    foreach (var aftSurface in aftSurfaces)
+                    foreach (var windProtectingSurface in windProtectingSurfaces)
                     {
-                        if (aftSurface.Coordinate - crossingCoordinate < 0.1 && crossingCoordinate <= aftSurface.Coordinate)
+                        if (Math.Abs(windProtectingSurface.Coordinate - crossingCoordinate) < 0.1 && Protects(windProtectingSurface, crossingAtEnd, crossingCoordinate))
                         {
-                            crossingContainers.Add(new PolygonsAtCoordinate(aftSurface.Coordinate, crossingContainersAtCoordinate.Select(container => new PathsD { container.PointsYZ }).ToList()));
-                            //crossingContainersAtCoordinate.Select(container => PolygonFactory.FromContainer(container)).ToList()));
+                            crossingContainers.Add(new ContainersAtCoordinate(windProtectingSurface.Coordinate, crossingContainersAtCoordinate.Select(container => container).ToList(), windProtectingSurface.End));
                         }
                     }
                 }
             }
+#if PARALLEL
+        );
+#endif
 
             return crossingContainers;
         }
 
+        private static bool Protects(ContainersAtCoordinate windProtectingSurface, ContainerEnd crossingAtEnd, double crossingCoordinate)
+        {
+            if( crossingAtEnd == ContainerEnd.Aft)
+            { 
+                return crossingCoordinate <= windProtectingSurface.Coordinate;
+            }
+            return crossingCoordinate >= windProtectingSurface.Coordinate;
+        }
+
         private static bool IsInside(Container container, double crossingCoordinate)
         {
+
             return crossingCoordinate >= container.AftSurface.Coordinate &&
-                            crossingCoordinate <= container.FrontSurface.Coordinate;
+                            crossingCoordinate <= container.ForeSurface.Coordinate;
         }
     }
 }

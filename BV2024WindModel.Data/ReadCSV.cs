@@ -29,6 +29,7 @@ namespace BV2024WindModel.Data
                     // Ensure there are enough fields in the current line
                     if (fields.Length >= 7 && lineIndex > 0)
                     {
+                        string position = fields[0];
                         float lcg = float.Parse(fields[1]);
                         float tcg = float.Parse(fields[2]);
                         float basis = float.Parse(fields[3]);
@@ -36,7 +37,7 @@ namespace BV2024WindModel.Data
                         float width = float.Parse(fields[5]);
                         float height = float.Parse(fields[6]);
 
-                        var container = new Container(lcg, tcg, basis, length, width, height);
+                        var container = new Container(position, lcg, tcg, basis, length, width, height);
                         containers.Add(container);
                     }
                     lineIndex++;

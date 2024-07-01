@@ -1,25 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using Clipper2Lib;
 using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
 
 namespace BV2024WindModel
 {
     public class PolygonPrinter
     {
-        public static void Print(IEnumerable<PointF> points)
+        public static string PrintPath(PathD path)
         {
-            foreach (var point in points)
+            string presentation = string.Empty;
+            foreach (var point in path)
             {
-                Console.WriteLine($"({point.X:f03}; {point.Y:f03})");
+                presentation += ($"({point.x:f03}; {point.y:f03})");
             }
+            return presentation;
         }
-        public static void Print(PolyDefault polygon)
+        public static string Print(PathsD polygon)
         {
-            foreach (var point in polygon.Points)
+            string presentation = string.Empty;
+            foreach (var path in polygon)
             {
-                Console.WriteLine($"({point.X:f03}; {point.Y:f03})");
+                presentation += PrintPath(path);
             }
+            return presentation;
         }
     }
     
