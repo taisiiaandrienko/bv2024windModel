@@ -13,29 +13,56 @@ namespace BV2024WindModel
            
             var containersFromFile = ReadCSV.ReadFromCsv("C:\\windLoadFiles\\wind9.csv");
 
-            var calculator = new BV2024WindCalculator();
+            var longitudinalCalculator = new BV2024LongitudinalWindCalculator();
+            var transverseCalculator = new BV2024TransverseWindCalculator();
 
-            var longitudeWindExposedSurfaces = calculator.Calculate(containersFromFile);
+            var longitudinalWindExposedSurfaces = longitudinalCalculator.Calculate(containersFromFile);
 
-            foreach (var windExposedFrontSurface in longitudeWindExposedSurfaces.Fore)
-            {
-                var windArea = 0.0; 
-                foreach (var containerResult in windExposedFrontSurface.Result)
-                {
-                    windArea += containerResult.Area;
-                //string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
-                //Console.WriteLine($"Id= {containerResult.ContainerId}, Area= {containerResult.Area:f06}, Points= {polygon}");
-                } 
-                Console.WriteLine($"XFore= {windExposedFrontSurface.Coordinate}, Area= {windArea:f06}");
-            }
-            foreach (var windExposedFrontSurface in longitudeWindExposedSurfaces.Aft)
+
+            foreach (var windExposedFrontSurface in longitudinalWindExposedSurfaces.Fore)
             {
                 var windArea = 0.0;
                 foreach (var containerResult in windExposedFrontSurface.Result)
                 {
                     windArea += containerResult.Area;
+                    //string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
+                    //Console.WriteLine($"Id= {containerResult.ContainerId}, Area= {containerResult.Area:f06}, Points= {polygon}");
                 }
-                Console.WriteLine($"XAft= {windExposedFrontSurface.Coordinate}, Area= {windArea:f06}");
+                Console.WriteLine($"XFore= {windExposedFrontSurface.Coordinate:f02}, Area= {windArea:f06}");
+            }
+            foreach (var windExposedAftSurface in longitudinalWindExposedSurfaces.Aft)
+            {
+                var windArea = 0.0;
+                foreach (var containerResult in windExposedAftSurface.Result)
+                {
+                    windArea += containerResult.Area;
+                }
+                Console.WriteLine($"XAft= {windExposedAftSurface.Coordinate:f02}, Area= {windArea:f06}");
+            }
+
+
+             
+
+
+            var transverseWindExposedSurfaces = transverseCalculator.Calculate(containersFromFile);
+
+            foreach (var windExposedPortsideSurface in transverseWindExposedSurfaces.Portside)
+            {
+                var windArea = 0.0;
+                foreach (var containerResult in windExposedPortsideSurface.Result)
+                {
+                    windArea += containerResult.Area;
+                }
+                Console.WriteLine($"Yport= {windExposedPortsideSurface.Coordinate:f03}, Area= {windArea:f06}");
+            }
+            foreach (var windExposedStarboardSurface in transverseWindExposedSurfaces.Starboard)
+            {
+                var windArea = 0.0;
+                foreach (var containerResult in windExposedStarboardSurface.Result)
+                {
+                    windArea += containerResult.Area;
+                }
+                Console.WriteLine($"Ystar= {windExposedStarboardSurface.Coordinate:f03}, Area= {windArea:f06}");
             }
 
             /*

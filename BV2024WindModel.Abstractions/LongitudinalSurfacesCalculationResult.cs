@@ -5,7 +5,7 @@ namespace BV2024WindModel.Abstractions
 {
     public class LongitudinalSurfacesCalculationResult
     {
-        public List<LongitudinalSurfaceCalculationResult> Aft;
-        public List<LongitudinalSurfaceCalculationResult> Fore;  
+        public List<SurfaceCalculationResult> Aft;
+        public List<SurfaceCalculationResult> Fore;
     }
 }

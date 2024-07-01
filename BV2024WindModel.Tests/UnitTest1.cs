@@ -15,7 +15,7 @@ namespace BV2024WindModel.Tests
         {
             var containersFromFile = ReadCSV.ReadFromCsv(inputFileName);
 
-            var calculator = new BV2024WindCalculator();
+            var calculator = new BV2024LongitudinalWindCalculator();
 
             var windExposedFrontSurfaces = calculator.Calculate(containersFromFile);
 

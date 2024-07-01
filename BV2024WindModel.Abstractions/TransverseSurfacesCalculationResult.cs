@@ -4,7 +4,7 @@ namespace BV2024WindModel.Abstractions
 {
     public class TransverseSurfacesCalculationResult
     {
-        public List<TransverseSurfaceCalculationResult> Portside;
-        public List<TransverseSurfaceCalculationResult> Starboard;
+        public List<SurfaceCalculationResult> Portside;
+        public List<SurfaceCalculationResult> Starboard; 
     }
 }

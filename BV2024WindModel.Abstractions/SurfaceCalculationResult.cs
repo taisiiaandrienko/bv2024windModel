@@ -2,10 +2,10 @@
 
 namespace BV2024WindModel.Abstractions
 {
-    public class TransverseSurfaceCalculationResult
+    public class SurfaceCalculationResult
     {
         public List<ContainerCalculationResult> Result;
-        public ContainerSide Side;
+        public ContainerEnd End;
         public double Coordinate;
     }
 }

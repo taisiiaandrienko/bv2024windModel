@@ -53,6 +53,7 @@ namespace BV2024WindModel.Abstractions
 
             AftSurface = new Surface(Math.Round(lcg - length / 2, 2), PointsYZ);
             ForeSurface = new Surface(Math.Round(lcg + length / 2, 2), PointsYZ);
+
             PortsideSurface = new Surface(Math.Round(tcg - width / 2, 3), PointsXZ); 
             StarboardSurface = new Surface(Math.Round(tcg + width / 2, 3), PointsXZ);
         }

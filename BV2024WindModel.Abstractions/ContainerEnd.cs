@@ -2,11 +2,14 @@
 {
     public enum ContainerEnd
     {
-        Aft , Fore
+        Aft , Fore, Portside, Starboard
     }
-    public enum ContainerSide
+    /*public enum ContainerSide
     {
-        Porstside, Starboard
+        Portside, Starboard
+    }*/
+    public enum Wind
+    {
+        Transverse, Longitudinal
     }
-
 }
