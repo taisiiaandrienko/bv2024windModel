@@ -1,5 +1,4 @@
-﻿#define PARALLEL
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,13 +11,8 @@ namespace BV2024WindModel.Logic
     public class BV2024LongitudinalWindCalculator : AbstractBV2024WindCalculator, ICalculator<IEnumerable<Container>, LongitudinalSurfacesCalculationResult>
     {
         public LongitudinalSurfacesCalculationResult Calculate(in IEnumerable<Container> input)
-        {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            var containers = input.ToList();
-            
-
+        { 
+            var containers = input.ToList(); 
             var aftSurfaces = containers.GroupBy(container => container.AftSurface.Coordinate, container => container,
                 (key, g) => new ContainersAtCoordinate(key, g.ToList(), ContainerEnd.Aft)).ToList();
             var foreSurfaces = containers.GroupBy(container => container.ForeSurface.Coordinate, container => container,
@@ -32,21 +26,12 @@ namespace BV2024WindModel.Logic
             foreProtectingSurfaces.Add(building.ForeSurface);
 
 
-            stopWatch.Stop();
-            Console.WriteLine($"Longitudinal data preparation time {stopWatch.ElapsedMilliseconds}ms");
-            stopWatch.Start();
             double alpha = 25;
 
-            var windExposedAftSurfaces = GetWindExposedSurfaces(alpha, aftSurfaces, foreProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
             var windExposedForeSurfaces = GetWindExposedSurfaces(alpha, foreSurfaces, aftProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
-            
-            stopWatch.Stop();
-            Console.WriteLine($"Longitudinal calculation time {stopWatch.ElapsedMilliseconds}ms");
-            foreach (var windExposedFrontSurface in aftProtectingSurfaces)
-            {
-                Console.WriteLine($"X= {windExposedFrontSurface.Coordinate}");
-            }
-            
+
+            var windExposedAftSurfaces = GetWindExposedSurfaces(alpha, aftSurfaces, foreProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
+             
             return new LongitudinalSurfacesCalculationResult(){ Aft = windExposedAftSurfaces, Fore = windExposedForeSurfaces };
 
         }

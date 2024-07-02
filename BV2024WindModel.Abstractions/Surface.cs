@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using Clipper2Lib;
 
 namespace BV2024WindModel.Abstractions
@@ -9,40 +9,23 @@ namespace BV2024WindModel.Abstractions
 
         public PathsD Paths;
         public double Coordinate;
+        public Bounds Bounds;
         public double Area
 
         { get { return AreaCalculator.CalcArea(Paths) ; } }
-        public Surface(double coordinate, List<PointD> points)
-        {
-            Coordinate = coordinate;
-            var paths = new PathD();
-            foreach (var point in points)
-            {
-                paths.Add(point);
-            }
-            Paths.Add(paths);
-        }
-        public Surface(double coordinate, PathD path)
-        {
-            Paths = new PathsD();
-            Coordinate = coordinate;
-            Paths.Add(path);
-        }
         public Surface(double coordinate, PathsD paths)
         {
             Coordinate = coordinate;
             Paths = paths;
+
+            var minx = paths.SelectMany(path => path).Min(point => point.x);
+            var maxx = paths.SelectMany(path => path).Max(point => point.x);
+            var miny = paths.SelectMany(path => path).Min(point => point.y);
+            var maxy = paths.SelectMany(path => path).Max(point => point.y);
+            Bounds = new Bounds { MinX = minx, MaxX = maxx, MinY = miny, MaxY = maxy };
+
         }
-        public Surface(double coordinate, List<PathD> paths)
-        {
-            Coordinate = coordinate;
-            Paths = PathsFactory.FromListOfPath(paths);
-        }
-        public Surface(double coordinate, List<PathsD> paths)
-        {
-            Coordinate = coordinate;
-            Paths = PathsFactory.FromListOfPaths(paths);
-        }
+        
     }
 
 }

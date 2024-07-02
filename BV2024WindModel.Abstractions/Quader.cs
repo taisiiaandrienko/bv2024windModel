@@ -17,7 +17,9 @@ namespace BV2024WindModel.Abstractions
         public Surface PortsideSurface;
         public Surface StarboardSurface;
         public PathsD PointsXZ;
-        public PathsD PointsYZ; 
+        public PathsD PointsYZ;
+        public Bounds TransverseBounds;
+        public Bounds LongitudinalBounds;
         public Quader(string id, double lcg, double tcg, double basis, double length, double width, double height)
         {
             this.id = id;
@@ -50,12 +52,20 @@ namespace BV2024WindModel.Abstractions
                     new PointD(xCoord[0],zCoord[1])
                 }
             };
+            var aftBound = Math.Round(lcg - length / 2, 3);
+            var foreBound = Math.Round(lcg + length / 2, 3);
+            AftSurface = new Surface(Math.Round(lcg - length / 2, 3), PointsYZ);
+            ForeSurface = new Surface(Math.Round(lcg + length / 2, 3), PointsYZ);
+            LongitudinalBounds = new Bounds { MinX = aftBound, MaxX = foreBound, MinY = basis, MaxY = basis + height };
 
-            AftSurface = new Surface(Math.Round(lcg - length / 2, 2), PointsYZ);
-            ForeSurface = new Surface(Math.Round(lcg + length / 2, 2), PointsYZ);
 
+            var portsideBound = Math.Round(tcg - width / 2, 3);
+            var starboardBound = Math.Round(tcg + width / 2, 3);
             PortsideSurface = new Surface(Math.Round(tcg - width / 2, 3), PointsXZ); 
             StarboardSurface = new Surface(Math.Round(tcg + width / 2, 3), PointsXZ);
+            TransverseBounds = new Bounds { MinX = portsideBound, MaxX = starboardBound, MinY = basis, MaxY = basis + height };
+
+
         }
 
     }

@@ -1125,9 +1125,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Tests\\BV2024WindModel.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Tests\\BV2024WindModel.Tests.csproj",
       "projectName": "BV2024WindModel.Tests",
-      "projectPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Tests\\BV2024WindModel.Tests.csproj",
+      "projectPath": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Tests\\BV2024WindModel.Tests.csproj",
       "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Tests\\obj\\",
       "projectStyle": "PackageReference",
@@ -1146,14 +1146,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj": {
-              "projectPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj"
+            "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj": {
+              "projectPath": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj"
             },
-            "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Data\\BV2024WindModel.Data.csproj": {
-              "projectPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Data\\BV2024WindModel.Data.csproj"
+            "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Data\\BV2024WindModel.Data.csproj": {
+              "projectPath": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Data\\BV2024WindModel.Data.csproj"
             },
-            "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Logic\\BV2024WindModel.Logic.csproj": {
-              "projectPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Logic\\BV2024WindModel.Logic.csproj"
+            "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Logic\\BV2024WindModel.Logic.csproj": {
+              "projectPath": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Logic\\BV2024WindModel.Logic.csproj"
             }
           }
         }

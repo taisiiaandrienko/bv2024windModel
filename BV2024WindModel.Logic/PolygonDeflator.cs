@@ -30,15 +30,14 @@ namespace BV2024WindModel
                 }
                 pathsToDeflate.Add(pathToDeflate);
             }
-            var allDeflatedPaths = Clipper.InflatePaths(pathsToDeflate, offset, JoinType.Miter, EndType.Polygon, 2.0, 3);
+            var allDeflatedPaths = Clipper.InflatePaths(pathsToDeflate, offset, JoinType.Miter, EndType.Polygon, 4.0, 8);
 
             if (allDeflatedPaths.Count > 0)
             {
                 return allDeflatedPaths;
             }
             return null;
-        }
-
+        } 
         private static void Grounding(double deckHeight, PathD pathToDeflate, PointD point)
         {
             if (point.y < deckHeight + 0.01)

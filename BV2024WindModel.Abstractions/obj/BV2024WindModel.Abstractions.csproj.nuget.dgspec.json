@@ -1,15 +1,15 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj": {}
+    "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj": {
+    "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj",
+        "projectUniqueName": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj",
         "projectName": "BV2024WindModel.Abstractions",
-        "projectPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj",
+        "projectPath": "C:\\Users\\Lenovo\\source\\repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\BV2024WindModel.Abstractions.csproj",
         "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Lenovo\\Source\\Repos\\taisiiaandrienko\\bv2024windModel\\BV2024WindModel.Abstractions\\obj\\",
         "projectStyle": "PackageReference",
