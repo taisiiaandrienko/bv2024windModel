@@ -4,12 +4,4 @@
     {
         Aft , Fore, Portside, Starboard
     }
-    /*public enum ContainerSide
-    {
-        Portside, Starboard
-    }*/
-    public enum Wind
-    {
-        Transverse, Longitudinal
-    }
 }

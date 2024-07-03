@@ -1,6 +1,4 @@
-﻿//#define PARALLEL
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,37 +9,44 @@ namespace BV2024WindModel.Logic
 {
     public class CrossingContainersProvider 
     {
-        public static List<ContainersAtCoordinate> GetCrossingContainers(IEnumerable<Container> containersFromFile, List<ContainersAtCoordinate> Surfaces1, List<ContainersAtCoordinate> Surfaces2, ContainerEnd crossingAtEnd)
+        public static List<ContainersAtCoordinate> GetCrossingContainers(IEnumerable<Container> containersFromFile, List<ContainersAtCoordinate> Surfaces1, List<ContainersAtCoordinate> Surfaces2, ContainerEnd crossingAtEnd, bool parallellise)
         {
             var crossingContainers = new List<ContainersAtCoordinate>();
 
             var windAffectedSurfaces = (crossingAtEnd == ContainerEnd.Aft || crossingAtEnd == ContainerEnd.Portside) ? Surfaces1 : Surfaces2;
             var windProtectingSurfaces = (crossingAtEnd == ContainerEnd.Fore || crossingAtEnd == ContainerEnd.Starboard) ? Surfaces1 : Surfaces2;
-#if PARALLEL
-            Parallel.ForEach(windAffectedSurfaces, windAffectedSurface =>
-#else
-            foreach (var windAffectedSurface in windAffectedSurfaces)
-#endif
-            {
-                var crossingCoordinate = (crossingAtEnd == ContainerEnd.Aft) ? windAffectedSurface.Coordinate + 0.00001 : windAffectedSurface.Coordinate - 0.00001;
-                var crossingContainersAtCoordinate = containersFromFile.Where(container => IsInside(container, crossingCoordinate, crossingAtEnd));
 
-                if (crossingContainersAtCoordinate.Count() > 0)
+            if (parallellise)
+            {
+                Parallel.ForEach(windAffectedSurfaces, windAffectedSurface =>
+                ProcessWindAffectedSurface(containersFromFile, crossingAtEnd, crossingContainers, windProtectingSurfaces, windAffectedSurface)
+                );
+            }
+            else
+            {
+                foreach (var windAffectedSurface in windAffectedSurfaces)
                 {
-                    foreach (var windProtectingSurface in windProtectingSurfaces)
+                    ProcessWindAffectedSurface(containersFromFile, crossingAtEnd, crossingContainers, windProtectingSurfaces, windAffectedSurface);
+                }
+            }
+            return crossingContainers;
+        }
+
+        private static void ProcessWindAffectedSurface(IEnumerable<Container> containersFromFile, ContainerEnd crossingAtEnd, List<ContainersAtCoordinate> crossingContainers, List<ContainersAtCoordinate> windProtectingSurfaces, ContainersAtCoordinate windAffectedSurface)
+        {
+            var crossingCoordinate = (crossingAtEnd == ContainerEnd.Aft || crossingAtEnd == ContainerEnd.Portside) ? windAffectedSurface.Coordinate + 0.00001 : windAffectedSurface.Coordinate - 0.00001;
+            var crossingContainersAtCoordinate = containersFromFile.Where(container => IsInside(container, crossingCoordinate, crossingAtEnd));
+
+            if (crossingContainersAtCoordinate.Count() > 0)
+            {
+                foreach (var windProtectingSurface in windProtectingSurfaces)
+                {
+                    if (Math.Abs(windProtectingSurface.Coordinate - crossingCoordinate) < 0.1 && Protects(windProtectingSurface, crossingAtEnd, crossingCoordinate))
                     {
-                        if (Math.Abs(windProtectingSurface.Coordinate - crossingCoordinate) < 0.1 && Protects(windProtectingSurface, crossingAtEnd, crossingCoordinate))
-                        {
-                            crossingContainers.Add(new ContainersAtCoordinate(windProtectingSurface.Coordinate, crossingContainersAtCoordinate.Select(container => container).ToList(), windProtectingSurface.End));
-                        }
+                        crossingContainers.Add(new ContainersAtCoordinate(windProtectingSurface.Coordinate, crossingContainersAtCoordinate.Select(container => container).ToList(), windProtectingSurface.End));
                     }
                 }
             }
-#if PARALLEL
-        );
-#endif
-
-            return crossingContainers;
         }
 
         private static bool Protects(ContainersAtCoordinate windProtectingSurface, ContainerEnd crossingAtEnd, double crossingCoordinate)

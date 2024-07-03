@@ -1,10 +1,9 @@
-﻿//#define PARALLEL
+﻿#define PARALLEL
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq; 
+using System.Linq;
 using System.Threading.Tasks;
 using BV2024WindModel.Abstractions;
 using Clipper2Lib;
@@ -14,37 +13,29 @@ namespace BV2024WindModel.Logic
 {
     public abstract class AbstractBV2024WindCalculator
     {
-        protected static IEnumerable<SurfaceCalculationResult> GetWindExposedSurfaces(double alpha, List<ContainersAtCoordinate> affectedSurfaces, List<Surface> protectingSurfaces)
+        protected static IEnumerable<SurfaceCalculationResult> GetWindExposedSurfaces(double alpha, List<ContainersAtCoordinate> affectedSurfaces, List<Surface> protectingSurfaces, bool parallellise)
         {
             var windExposedSurfaces = new List<SurfaceCalculationResult>();
 
-#if PARALLEL
-            Parallel.ForEach(affectedSurfaces, affectedSurface =>
-#else
-            foreach (var affectedSurface in affectedSurfaces)
-#endif
+            if (parallellise)
             {
-                var windExposedSurface = GetWindExposedSurfaceCalculationResult(alpha, protectingSurfaces, affectedSurface);
-                windExposedSurfaces.Add(windExposedSurface);
-                /*
-                if (affectedSurface.Coordinate <100)
-                { 
-                foreach (var protectingSurface in protectingSurfaces)
-                {
-                    if (protectingSurface.Coordinate > affectedSurface.Coordinate && Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate) < 75)
-                    {
-                        var containersDist = Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate);
-                        var tg = Math.Tan(25 * (Math.PI / 180));
-                        var offset = -tg * containersDist;
-                        Console.WriteLine($"Xcurr = {affectedSurface.Coordinate}, Xprot= {protectingSurface.Coordinate}, offset {offset:f08}");
-                    }
-                }
-                }*/
-            }
-#if PARALLEL
-            );
-#endif
 
+                Parallel.ForEach(affectedSurfaces, affectedSurface =>
+                {
+                    var windExposedSurface = GetWindExposedSurfaceCalculationResult(alpha, protectingSurfaces, affectedSurface);
+                    windExposedSurfaces.Add(windExposedSurface);
+                });
+
+            }
+            else
+            {
+                foreach (var affectedSurface in affectedSurfaces)
+
+                {
+                    var windExposedSurface = GetWindExposedSurfaceCalculationResult(alpha, protectingSurfaces, affectedSurface);
+                    windExposedSurfaces.Add(windExposedSurface);
+                }
+            }
             return windExposedSurfaces;
         }
 
@@ -55,43 +46,65 @@ namespace BV2024WindModel.Logic
             var allWindExposedContainers = new List<ContainerCalculationResult>();
             foreach (var container in affectedSurface.Containers)
             {
-                var paths = (affectedSurface.End  == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Aft) ? container.PointsYZ : container.PointsXZ;
-                var windExposedPolygon = new PathsD(paths);
-                var containerBounds = GetBounds(paths);
+                var containerPoints = (affectedSurface.End  == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Aft) ? container.PointsYZ : container.PointsXZ;
+                var windExposedPolygon = new PathsD(containerPoints);
+                var containerBounds = (affectedSurface.End == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Aft) ? container.TransverseBounds : container.LongitudinalBounds;
                 foreach (var protectingSurface in protectingSurfaces)
                 {
-                    var protectingBounds = protectingSurface.Bounds;
-                    if (containerBounds.MinX > protectingBounds.MaxX)
-                        continue;
-                    if (containerBounds.MaxX < protectingBounds.MinX)
-                        continue;
-                    if (containerBounds.MinY > protectingBounds.MaxY)
-                        continue;
-                    if (containerBounds.MaxY < protectingBounds.MinY)
-                        continue;
-                    //!
-                    if (Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate) <= 0.5 && containerBounds.MaxY <= protectingBounds.MaxY &&
-                        containerBounds.MaxX <= protectingBounds.MaxX && containerBounds.MinX >= protectingBounds.MinX)
-                    {
-                        windExposedPolygon = new PathsD();
-                        break;
-                    }
+                    var canProtect = (affectedSurface.End == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Starboard) ? (protectingSurface.Coordinate > affectedSurface.Coordinate) : (protectingSurface.Coordinate < affectedSurface.Coordinate);
 
-                    bool needCalculate = NeedToCalculate(alpha, affectedSurface, protectingSurface); 
-                    if (needCalculate)
+                    if (canProtect)
                     {
-                        var deflatedPaths = PolygonDeflator.DeflatePolygon(protectingSurface, affectedSurface.Coordinate, alpha);
-                        if (deflatedPaths != null)
-                        { 
-                            windExposedPolygon = Clipper.Difference(windExposedPolygon, deflatedPaths, FillRule.NonZero, 8);
+                        var protectingBounds = protectingSurface.Bounds;
+                        if (containerBounds.MinX > protectingBounds.MaxX)
+                            continue;
+                        if (containerBounds.MaxX < protectingBounds.MinX)
+                            continue;
+                        if (containerBounds.MinY > protectingBounds.MaxY)
+                            continue;
+                        if (containerBounds.MaxY < protectingBounds.MinY)
+                            continue;
+
+                        if (Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate) <= 0.5)
+                        {
+                            windExposedPolygon = CheckForFullProtection(windExposedPolygon, containerBounds, protectingSurface, protectingBounds);
                             if (windExposedPolygon.Count == 0)
+                            {
                                 break;
+                            }
+                            windExposedPolygon = Clipper.Difference(windExposedPolygon, protectingSurface.Paths, FillRule.NonZero, 8);
+
+                            if (windExposedPolygon.Count == 0)
+                            {
+                                break;
+                            }
+                            var exposedArea = AreaCalculator.CalcArea(windExposedPolygon);
+                            if (exposedArea < 0.001)
+                            {
+                                windExposedPolygon = new PathsD();
+                                break;
+                            }
                         }
+                        else
+                        { 
+                            bool needCalculate = NeedToCalculate(alpha, affectedSurface, protectingSurface);
+                            if (needCalculate)
+                            {
+                                var deflatedPaths = PolygonDeflator.DeflatePolygon(protectingSurface, affectedSurface.Coordinate, alpha);
+                                if (deflatedPaths != null)
+                                {
+                                    windExposedPolygon = Clipper.Difference(windExposedPolygon, deflatedPaths, FillRule.NonZero, 8);
+                                    if (windExposedPolygon.Count == 0)
+                                        break;
+                                }
+                            }
+                        }
+                        
                     }
-                    
                     if (windExposedPolygon.Count == 0)
                         break;
                 }
+                
                 var containerCalculationResult = new ContainerCalculationResult
                 {
                     ContainerId = container.id,
@@ -106,6 +119,49 @@ namespace BV2024WindModel.Logic
             //(frontSurface.Coordinate, frontSurface.Paths);
             return windExposedSurface;
         }
+
+        private static PathsD CheckForFullProtection(PathsD windExposedPolygon, Bounds containerBounds, Surface protectingSurface, Bounds protectingBounds)
+        {
+            foreach (var path in protectingSurface.Paths)
+            {
+                //if (protectingSurface.Paths.Count == 1 && protectingSurface.Paths[0].Count == 4)
+                if (path.Count == 4 && protectingSurface.Paths.Count == 1)
+                {
+                    if (IsLowerOrSimilar(containerBounds, protectingBounds) && IsRightOrSimilar(containerBounds, protectingBounds) && IsLeftOrSimilar(containerBounds, protectingBounds))
+                    {
+                        windExposedPolygon = new PathsD();
+                        break;
+                    }
+                }
+                if (path.Count == 4 && protectingSurface.Paths.Count != 1)
+                {
+                    var pathBounds = GetBounds(new PathsD { path });
+                    if (IsLowerOrSimilar(containerBounds, pathBounds) && IsRightOrSimilar(containerBounds, pathBounds) && IsLeftOrSimilar(containerBounds, pathBounds))
+                    {
+                        windExposedPolygon = new PathsD();
+                        break;
+                    }
+                }
+            }
+
+            return windExposedPolygon;
+        }
+
+        private static bool IsLeftOrSimilar(Bounds containerBounds, Bounds protectingBounds)
+        {
+            return Math.Abs(containerBounds.MinX - protectingBounds.MinX) < 0.001 || containerBounds.MinX > protectingBounds.MinX;
+        }
+
+        private static bool IsRightOrSimilar(Bounds containerBounds, Bounds protectingBounds)
+        {
+            return Math.Abs(containerBounds.MaxX - protectingBounds.MaxX) < 0.001|| containerBounds.MaxX < protectingBounds.MaxX;
+        }
+
+        private static bool IsLowerOrSimilar(Bounds containerBounds, Bounds protectingBounds)
+        {
+            return Math.Abs(containerBounds.MaxY - protectingBounds.MaxY) < 0.001 || containerBounds.MaxY < protectingBounds.MaxY ;
+        }
+
         private static Bounds GetBounds(PathsD paths)
         {
             var minx = paths.SelectMany(path => path).Min(point => point.x);
@@ -119,9 +175,7 @@ namespace BV2024WindModel.Logic
             var needCalculate = false;
             var protectingDistance = (affectedSurface.End == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Aft) ? 75 : 14;
             var containersDist = Math.Abs(protectingSurface.Coordinate - affectedSurface.Coordinate);
-            var canProtect = (affectedSurface.End == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Starboard) ? (protectingSurface.Coordinate > affectedSurface.Coordinate) : (protectingSurface.Coordinate < affectedSurface.Coordinate);
-             
-            if (canProtect && containersDist < protectingDistance)
+            if (containersDist < protectingDistance)
             { 
                 var tg = Math.Tan(alpha * (Math.PI / 180));
                 var offset = -tg * containersDist;
@@ -138,75 +192,8 @@ namespace BV2024WindModel.Logic
                 }
             }
             return needCalculate;
-        }
-
-        protected static List<Surface> GetProtectingSurfaces(IEnumerable<Container> containersFromFile, List<ContainersAtCoordinate> Surfaces1, List<ContainersAtCoordinate> Surfaces2, ContainerEnd protectingFrom)
-        {
-            var crossingContainers = CrossingContainersProvider.GetCrossingContainers(containersFromFile, Surfaces1, Surfaces2, protectingFrom);
-
-            var protectingContainers = (protectingFrom == ContainerEnd.Aft || protectingFrom == ContainerEnd.Portside) ? Surfaces2 : Surfaces1;
-            var allProtectingContainers = new List<ContainersAtCoordinate>();
-            allProtectingContainers.AddRange(protectingContainers);
-            allProtectingContainers.AddRange(crossingContainers);
-
-            var allProtectingSurfaces = allProtectingContainers.GroupBy(container => container.Coordinate, container => container,
-                (key, g) => new ContainersAtCoordinate(key, g.SelectMany(x => x.Containers).ToList(), protectingFrom)).ToList();
-
-            var unitedProtectingSurfaces = GetUnitedProtectingSurfaces(allProtectingSurfaces, protectingFrom);
-
-            return unitedProtectingSurfaces;
-        }
-
-        private static List<Surface> GetUnitedProtectingSurfaces(List<ContainersAtCoordinate> protectingSurfaces, ContainerEnd protectingFrom)
-        {
-            var inflatedProtectingSurfacesBag = new ConcurrentBag<Surface>();
-            var unionOffset = 0.3;
-           
-
-#if PARALLEL
-            Parallel.ForEach(protectingSurfaces, protectingSurface =>
-#else
-            foreach (var protectingSurface in protectingSurfaces)
-#endif
-            {
-                var allContainers = new PathsD();
-                foreach (var container in protectingSurface.Containers)
-                {
-                    var paths = (protectingFrom == ContainerEnd.Fore || protectingFrom == ContainerEnd.Aft) ? container.PointsYZ : container.PointsXZ;
-                    foreach (var path in paths)
-                    {
-                        allContainers.Add(path);
-                    }
-                }
-                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(allContainers, unionOffset / 2 , JoinType.Miter, EndType.Polygon, 4.0, 8);
-             
-                inflatedProtectingSurfacesBag.Add(new Surface(protectingSurface.Coordinate, protectingPolygonsAtCoordinate));
-            }
-#if PARALLEL
-            );
-#endif
-            var unitedProtectingSurfaces = new List<Surface>();
-            var inflatedProtectingSurfaces = inflatedProtectingSurfacesBag.ToList();
-
-#if PARALLEL
-            Parallel.ForEach(inflatedProtectingSurfaces, inflatedSurface =>
-#else
-            foreach (var inflatedSurface in inflatedProtectingSurfaces)
-#endif
-            {
-                var protectingPolygonsAtCoordinate = Clipper.InflatePaths(inflatedSurface.Paths, - unionOffset / 2, JoinType.Miter, EndType.Polygon, 4.0, 8);
-                
-                unitedProtectingSurfaces.Add(new Surface(inflatedSurface.Coordinate, protectingPolygonsAtCoordinate));
-            }
-#if PARALLEL
-        );
-#endif
-
-            return unitedProtectingSurfaces;
-        }
+        } 
 
     }
-
-
 }
 

@@ -78,11 +78,11 @@ namespace BV2024WindModel.Logic
                 var starboardSurfaces = containersInCluster.GroupBy(container => container.StarboardSurface.Coordinate, container => container,
                     (key, g) => new ContainersAtCoordinate(key, g.ToList(), ContainerEnd.Starboard)).ToList();
 
-                var portsideProtectingSurfaces = GetProtectingSurfaces(containersInCluster, starboardSurfaces, portsideSurfaces, ContainerEnd.Portside);
-                var starboardProtectingSurfaces = GetProtectingSurfaces(containersInCluster, portsideSurfaces, starboardSurfaces, ContainerEnd.Starboard);
+                var portsideProtectingSurfaces = ProtectingSurfacesFactory.Create(containersInCluster, starboardSurfaces, portsideSurfaces, ContainerEnd.Portside, false);
+                var starboardProtectingSurfaces = ProtectingSurfacesFactory.Create(containersInCluster, starboardSurfaces, portsideSurfaces, ContainerEnd.Starboard, false);
                 
-                var windExposedStarboardSurfacesInCluster = GetWindExposedSurfaces(alpha, starboardSurfaces, portsideProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
-                var windExposedPortsideSurfacesInCluster = GetWindExposedSurfaces(alpha, portsideSurfaces, starboardProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
+                var windExposedStarboardSurfacesInCluster = GetWindExposedSurfaces(alpha, starboardSurfaces, portsideProtectingSurfaces, false).OrderByDescending(surface => surface.Coordinate).ToList();
+                var windExposedPortsideSurfacesInCluster = GetWindExposedSurfaces(alpha, portsideSurfaces, starboardProtectingSurfaces, false).OrderByDescending(surface => surface.Coordinate).ToList();
                 windExposedStarboardSurfaces.AddRange(windExposedStarboardSurfacesInCluster);
                 windExposedPortsideSurfaces.AddRange(windExposedPortsideSurfacesInCluster);
             }

@@ -4,9 +4,7 @@ using Clipper2Lib;
 namespace BV2024WindModel.Abstractions
 {
     public class Surface
-    {
-        //public PolyDefault Polygon;
-
+    { 
         public PathsD Paths;
         public double Coordinate;
         public Bounds Bounds;

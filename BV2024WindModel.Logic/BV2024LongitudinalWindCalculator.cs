@@ -18,8 +18,8 @@ namespace BV2024WindModel.Logic
             var foreSurfaces = containers.GroupBy(container => container.ForeSurface.Coordinate, container => container,
                 (key, g) => new ContainersAtCoordinate(key, g.ToList(), ContainerEnd.Fore)).ToList();
 
-            var aftProtectingSurfaces = GetProtectingSurfaces(containers, foreSurfaces, aftSurfaces, ContainerEnd.Aft); 
-            var foreProtectingSurfaces = GetProtectingSurfaces(containers, foreSurfaces, aftSurfaces, ContainerEnd.Fore);
+            var aftProtectingSurfaces = ProtectingSurfacesFactory.Create(containers, foreSurfaces, aftSurfaces, ContainerEnd.Aft, true); 
+            var foreProtectingSurfaces = ProtectingSurfacesFactory.Create(containers, foreSurfaces, aftSurfaces, ContainerEnd.Fore, true);
              
             var building = new Building("1", 212.65, 0, 29, 14.3, 50, 33); 
             aftProtectingSurfaces.Add(building.AftSurface);
@@ -28,9 +28,8 @@ namespace BV2024WindModel.Logic
 
             double alpha = 25;
 
-            var windExposedForeSurfaces = GetWindExposedSurfaces(alpha, foreSurfaces, aftProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
-
-            var windExposedAftSurfaces = GetWindExposedSurfaces(alpha, aftSurfaces, foreProtectingSurfaces).OrderByDescending(surface => surface.Coordinate).ToList();
+            var windExposedForeSurfaces = GetWindExposedSurfaces(alpha, foreSurfaces, aftProtectingSurfaces, true).OrderByDescending(surface => surface.Coordinate).ToList();
+            var windExposedAftSurfaces = GetWindExposedSurfaces(alpha, aftSurfaces, foreProtectingSurfaces, true).OrderByDescending(surface => surface.Coordinate).ToList();
              
             return new LongitudinalSurfacesCalculationResult(){ Aft = windExposedAftSurfaces, Fore = windExposedForeSurfaces };
 
