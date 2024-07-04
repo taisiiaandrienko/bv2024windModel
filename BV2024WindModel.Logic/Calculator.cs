@@ -1,6 +1,7 @@
 ﻿#define PARALLEL
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,9 +14,11 @@ namespace BV2024WindModel.Logic
 {
     public abstract class AbstractBV2024WindCalculator
     {
+        protected WindForcesExternalCalculationParameters WindForcesExternalCalculationParameters;
         protected static IEnumerable<SurfaceCalculationResult> GetWindExposedSurfaces(double alpha, List<ContainersAtCoordinate> affectedSurfaces, List<Surface> protectingSurfaces, bool parallellise)
         {
-            var windExposedSurfaces = new List<SurfaceCalculationResult>();
+            
+            var windExposedSurfaces = new ConcurrentBag<SurfaceCalculationResult>();
 
             if (parallellise)
             {
@@ -41,7 +44,6 @@ namespace BV2024WindModel.Logic
 
         private static SurfaceCalculationResult GetWindExposedSurfaceCalculationResult(double alpha, List<Surface> protectingSurfaces, ContainersAtCoordinate affectedSurface)
         {
-            var allOffsets = new List<double>();
 
             var allWindExposedContainers = new List<ContainerCalculationResult>();
             foreach (var container in affectedSurface.Containers)
@@ -78,8 +80,8 @@ namespace BV2024WindModel.Logic
                             {
                                 break;
                             }
-                            var exposedArea = AreaCalculator.CalcArea(windExposedPolygon);
-                            if (exposedArea < 0.001)
+                            var area = AreaCalculator.CalcArea(windExposedPolygon);
+                            if (area < 0.001)
                             {
                                 windExposedPolygon = new PathsD();
                                 break;
@@ -104,13 +106,25 @@ namespace BV2024WindModel.Logic
                     if (windExposedPolygon.Count == 0)
                         break;
                 }
-                
+
+                var forceCalculator = new WindForceCalculator();
+                var fullWidth = (affectedSurface.End == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Aft) ? container.Width : container.Length;
+                var fullHeight = container.Height;
+                var fullArea = fullWidth * fullHeight;
+                var exposedArea = AreaCalculator.CalcArea(windExposedPolygon);
+                var volumetricCenter = container.basis + fullHeight / 2;
+
                 var containerCalculationResult = new ContainerCalculationResult
                 {
                     ContainerId = container.id,
+                    FullHeight = fullHeight,
+                    FullWidth = fullWidth,
+                    VolumetricCenter = volumetricCenter,
+                    FullArea = fullArea,
                     WindExposedPolygon = windExposedPolygon,
-                    Area = AreaCalculator.CalcArea(windExposedPolygon)
+                    ExposedArea = exposedArea
                 };
+
                 allWindExposedContainers.Add(containerCalculationResult);
             }
 
@@ -194,6 +208,16 @@ namespace BV2024WindModel.Logic
             return needCalculate;
         } 
 
+    }
+    public static class Utils
+    {
+        public static void AddRange<T>(this ConcurrentBag<T> @this, IEnumerable<T> toAdd)
+        {
+            foreach (var element in toAdd)
+            {
+                @this.Add(element);
+            }
+        } 
     }
 }
 

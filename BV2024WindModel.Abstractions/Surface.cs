@@ -8,9 +8,7 @@ namespace BV2024WindModel.Abstractions
         public PathsD Paths;
         public double Coordinate;
         public Bounds Bounds;
-        public double Area
-
-        { get { return AreaCalculator.CalcArea(Paths) ; } }
+        
         public Surface(double coordinate, PathsD paths)
         {
             Coordinate = coordinate;

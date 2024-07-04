@@ -29,10 +29,52 @@ namespace BV2024WindModel.Logic
 
         private static List<Surface> GetUnitedProtectingSurfaces(List<ContainersAtCoordinate> protectingSurfaces, ContainerEnd protectingFrom, bool parallellise)
         {
-            var inflatedProtectingSurfacesBag = new ConcurrentBag<Surface>();
+
             var unionOffset = 0.3;
 
+            List<Surface> inflatedProtectingSurfaces = GetInflatedProtectingSurfaces(protectingSurfaces, protectingFrom, parallellise, unionOffset);
 
+            List<Surface> unitedProtectingSurfacesList = GetProtectingSurfaces(protectingFrom, parallellise, unionOffset, inflatedProtectingSurfaces);
+            return unitedProtectingSurfacesList;
+        }
+
+        private static List<Surface> GetProtectingSurfaces(ContainerEnd protectingFrom, bool parallellise, double unionOffset, List<Surface> inflatedProtectingSurfaces)
+        {
+            var unitedProtectingSurfaces = new ConcurrentBag<Surface>();
+            if (parallellise)
+            {
+                Parallel.ForEach(inflatedProtectingSurfaces, inflatedSurface =>
+                {
+                    var protectingPolygonsAtCoordinate = Clipper.InflatePaths(inflatedSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon, 4.0, 8);
+
+                    unitedProtectingSurfaces.Add(new Surface(inflatedSurface.Coordinate, protectingPolygonsAtCoordinate));
+                });
+            }
+            else
+            {
+                foreach (var inflatedSurface in inflatedProtectingSurfaces)
+                {
+                    var protectingPolygonsAtCoordinate = Clipper.InflatePaths(inflatedSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon, 4.0, 8);
+
+                    unitedProtectingSurfaces.Add(new Surface(inflatedSurface.Coordinate, protectingPolygonsAtCoordinate));
+                }
+            }
+            List<Surface> unitedProtectingSurfacesList = null;
+            if (protectingFrom == ContainerEnd.Aft || protectingFrom == ContainerEnd.Portside)
+            {
+                unitedProtectingSurfacesList = unitedProtectingSurfaces.OrderBy(surface => surface.Coordinate).ToList();
+            }
+            else
+            {
+                unitedProtectingSurfacesList = unitedProtectingSurfaces.OrderByDescending(surface => surface.Coordinate).ToList();
+            }
+
+            return unitedProtectingSurfacesList;
+        }
+
+        private static List<Surface> GetInflatedProtectingSurfaces(List<ContainersAtCoordinate> protectingSurfaces, ContainerEnd protectingFrom, bool parallellise, double unionOffset)
+        {
+            var inflatedProtectingSurfacesBag = new ConcurrentBag<Surface>();
             if (parallellise)
             {
                 Parallel.ForEach(protectingSurfaces, protectingSurface =>
@@ -71,36 +113,8 @@ namespace BV2024WindModel.Logic
                 }
             }
 
-
-            var unitedProtectingSurfaces = new List<Surface>();
             var inflatedProtectingSurfaces = inflatedProtectingSurfacesBag.ToList();
-            if (parallellise)
-            {
-                Parallel.ForEach(inflatedProtectingSurfaces, inflatedSurface =>
-                {
-                    var protectingPolygonsAtCoordinate = Clipper.InflatePaths(inflatedSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon, 4.0, 8);
-
-                    unitedProtectingSurfaces.Add(new Surface(inflatedSurface.Coordinate, protectingPolygonsAtCoordinate));
-                });
-            }
-            else
-            {
-                foreach (var inflatedSurface in inflatedProtectingSurfaces)
-                {
-                    var protectingPolygonsAtCoordinate = Clipper.InflatePaths(inflatedSurface.Paths, -unionOffset / 2, JoinType.Miter, EndType.Polygon, 4.0, 8);
-
-                    unitedProtectingSurfaces.Add(new Surface(inflatedSurface.Coordinate, protectingPolygonsAtCoordinate));
-                }
-            }
-            if (protectingFrom == ContainerEnd.Aft || protectingFrom == ContainerEnd.Portside)
-            {
-                unitedProtectingSurfaces = unitedProtectingSurfaces.OrderBy(surface => surface.Coordinate).ToList();
-            }
-            else
-            {
-                unitedProtectingSurfaces = unitedProtectingSurfaces.OrderByDescending(surface => surface.Coordinate).ToList();
-            }
-            return unitedProtectingSurfaces;
+            return inflatedProtectingSurfaces;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿#define PARALLEL
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -64,8 +65,8 @@ namespace BV2024WindModel.Logic
                 }
             }
 
-            var windExposedStarboardSurfaces = new List<SurfaceCalculationResult>();
-            var windExposedPortsideSurfaces = new List<SurfaceCalculationResult>();
+            var windExposedStarboardSurfaces = new ConcurrentBag<SurfaceCalculationResult>();
+            var windExposedPortsideSurfaces = new ConcurrentBag<SurfaceCalculationResult>();
 #if PARALLEL
             Parallel.ForEach(clusters, cluster =>
 #else
@@ -81,9 +82,10 @@ namespace BV2024WindModel.Logic
                 var portsideProtectingSurfaces = ProtectingSurfacesFactory.Create(containersInCluster, starboardSurfaces, portsideSurfaces, ContainerEnd.Portside, false);
                 var starboardProtectingSurfaces = ProtectingSurfacesFactory.Create(containersInCluster, starboardSurfaces, portsideSurfaces, ContainerEnd.Starboard, false);
                 
-                var windExposedStarboardSurfacesInCluster = GetWindExposedSurfaces(alpha, starboardSurfaces, portsideProtectingSurfaces, false).OrderByDescending(surface => surface.Coordinate).ToList();
-                var windExposedPortsideSurfacesInCluster = GetWindExposedSurfaces(alpha, portsideSurfaces, starboardProtectingSurfaces, false).OrderByDescending(surface => surface.Coordinate).ToList();
-                windExposedStarboardSurfaces.AddRange(windExposedStarboardSurfacesInCluster);
+                var windExposedStarboardSurfacesInCluster = GetWindExposedSurfaces(alpha, starboardSurfaces, portsideProtectingSurfaces, false);
+                var windExposedPortsideSurfacesInCluster = GetWindExposedSurfaces(alpha, portsideSurfaces, starboardProtectingSurfaces, false);
+                
+                windExposedStarboardSurfaces. AddRange(windExposedStarboardSurfacesInCluster);
                 windExposedPortsideSurfaces.AddRange(windExposedPortsideSurfacesInCluster);
             }
 #if PARALLEL
@@ -92,7 +94,7 @@ namespace BV2024WindModel.Logic
 
 
 
-            return new TransverseSurfacesCalculationResult() { Portside = windExposedPortsideSurfaces, Starboard = windExposedStarboardSurfaces };
+            return new TransverseSurfacesCalculationResult() { Portside = windExposedPortsideSurfaces.OrderByDescending(surface => surface.Coordinate).ToList(), Starboard = windExposedStarboardSurfaces.OrderByDescending(surface => surface.Coordinate).ToList() };
 
         }
 

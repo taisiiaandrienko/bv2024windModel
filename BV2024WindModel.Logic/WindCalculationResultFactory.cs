@@ -18,7 +18,7 @@ namespace BV2024WindModel
             var windArea = 0.0;
             foreach (var containerResult in surface.Result)
             {
-                windArea += containerResult.Area; 
+                windArea += containerResult.ExposedArea; 
             }
             return windArea;
         }

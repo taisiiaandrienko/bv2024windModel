@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace BV2024WindModel.Logic
     {
         public static List<ContainersAtCoordinate> GetCrossingContainers(IEnumerable<Container> containersFromFile, List<ContainersAtCoordinate> Surfaces1, List<ContainersAtCoordinate> Surfaces2, ContainerEnd crossingAtEnd, bool parallellise)
         {
-            var crossingContainers = new List<ContainersAtCoordinate>();
+            var crossingContainers = new ConcurrentBag<ContainersAtCoordinate>();
 
             var windAffectedSurfaces = (crossingAtEnd == ContainerEnd.Aft || crossingAtEnd == ContainerEnd.Portside) ? Surfaces1 : Surfaces2;
             var windProtectingSurfaces = (crossingAtEnd == ContainerEnd.Fore || crossingAtEnd == ContainerEnd.Starboard) ? Surfaces1 : Surfaces2;
@@ -29,10 +30,10 @@ namespace BV2024WindModel.Logic
                     ProcessWindAffectedSurface(containersFromFile, crossingAtEnd, crossingContainers, windProtectingSurfaces, windAffectedSurface);
                 }
             }
-            return crossingContainers;
+            return crossingContainers.ToList();
         }
 
-        private static void ProcessWindAffectedSurface(IEnumerable<Container> containersFromFile, ContainerEnd crossingAtEnd, List<ContainersAtCoordinate> crossingContainers, List<ContainersAtCoordinate> windProtectingSurfaces, ContainersAtCoordinate windAffectedSurface)
+        private static void ProcessWindAffectedSurface(IEnumerable<Container> containersFromFile, ContainerEnd crossingAtEnd, ConcurrentBag<ContainersAtCoordinate> crossingContainers, List<ContainersAtCoordinate> windProtectingSurfaces, ContainersAtCoordinate windAffectedSurface)
         {
             var crossingCoordinate = (crossingAtEnd == ContainerEnd.Aft || crossingAtEnd == ContainerEnd.Portside) ? windAffectedSurface.Coordinate + 0.00001 : windAffectedSurface.Coordinate - 0.00001;
             var crossingContainersAtCoordinate = containersFromFile.Where(container => IsInside(container, crossingCoordinate, crossingAtEnd));
