@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Dynamic;
-using System.IO;
 using System.Linq;
 using BV2024WindModel.Abstractions;
 using Clipper2Lib;
-using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
 
 namespace BV2024WindModel
 {

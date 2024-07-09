@@ -18,7 +18,13 @@ namespace BV2024WindModel.Abstractions
         public Surface StarboardSurface { get; }
         public PathsD PointsXZ { get; }
         public PathsD PointsYZ { get; }
+        /// <summary>
+        /// Most portside and most starboard points is used for limiting the set of containers to be calculated.
+        /// </summary>
         public Bounds TransverseBounds { get; }
+        /// <summary>
+        /// Most aft and most fore points is used for limiting the set of containers to be calculated.
+        /// </summary>
         public Bounds LongitudinalBounds { get; }
         public Quader(string id, double lcg, double tcg, double basis, double length, double width, double height)
         {

@@ -12,9 +12,9 @@ namespace BV2024WindModel
 
     public class Windmodel
     {
-        
 
-static void Main(string[] args)
+
+        static void Main(string[] args)
         {
 
             try
@@ -41,10 +41,10 @@ static void Main(string[] args)
 
                 var forcesCalculator = new WindForceCalculator();
                 var externalParametrs = new WindForcesExternalCalculationParameters { Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
-                 
+
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, longitudinalWindExposedSurfaces.Fore);
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, longitudinalWindExposedSurfaces.Aft);
-           
+
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, transverseWindExposedSurfaces.Portside);
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, transverseWindExposedSurfaces.Starboard);
 
@@ -141,7 +141,7 @@ static void Main(string[] args)
 
         }
 
-        
+
 
     }
 

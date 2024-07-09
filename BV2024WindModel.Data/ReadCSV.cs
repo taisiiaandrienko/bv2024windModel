@@ -1,10 +1,6 @@
 ﻿using System.Collections.Generic;
-using BV2024WindModel.Abstractions;
-using CsvHelper;
-using System.Globalization;
-using System;
 using System.IO;
-using System.Linq;
+using BV2024WindModel.Abstractions;
 
 
 namespace BV2024WindModel.Data

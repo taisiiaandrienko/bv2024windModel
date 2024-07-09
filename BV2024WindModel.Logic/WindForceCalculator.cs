@@ -1,7 +1,6 @@
 ﻿using System;
 using BV2024WindModel.Abstractions;
 
-
 namespace BV2024WindModel.Logic
 {
 

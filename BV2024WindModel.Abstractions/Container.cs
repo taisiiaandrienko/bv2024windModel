@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-
-namespace BV2024WindModel.Abstractions
+﻿namespace BV2024WindModel.Abstractions
 {
     public class Container : Quader
     {
