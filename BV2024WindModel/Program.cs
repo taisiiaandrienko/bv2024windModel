@@ -6,6 +6,7 @@ using System.Diagnostics;
 using BV2024WindModel.Abstractions;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace BV2024WindModel
 {
@@ -19,9 +20,20 @@ namespace BV2024WindModel
 
             try
             {
-                var fileNumber = 9;
+                var fileNumber =7;
+                var buildings = new List<Building>();
+                var building1 = new Building("1", 212.65, 0, 29, 14.3, 50, 33);
+                buildings.Add(building1);
+                var building2 = new Building("2", 56.5, 0, 29, 9, 50, 31);
+                buildings.Add(building2);
+                var vessel = new Vessel(30, buildings, 25);
 
-                var containersFromFile = ReadCSV.ReadFromCsv($"C:\\windLoadFiles\\wind{fileNumber}.csv");
+
+                var allContainersFromFile = ReadCSV.ReadFromCsv($"C:\\windLoadFiles\\wind{fileNumber}.csv");
+                //container on deck, which are below hatch cover will not be calculated
+                var containersFromFile = allContainersFromFile.Where(container => container.Basis >= vessel.DeckHeight).ToList();
+
+                var input = new WindCalculatorInput { Containers = containersFromFile, Vessel = vessel };
 
                 var longitudinalCalculator = new BV2024LongitudinalWindCalculator();
                 var transverseCalculator = new BV2024TransverseWindCalculator();
@@ -29,11 +41,11 @@ namespace BV2024WindModel
                 stopWatchTotal.Start();
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
-                var longitudinalWindExposedSurfaces = longitudinalCalculator.Calculate(containersFromFile);
+                var longitudinalWindExposedSurfaces = longitudinalCalculator.Calculate(input);
                 stopWatch.Stop();
                 Console.WriteLine($"Longitudinal calculation time {stopWatch.ElapsedMilliseconds}ms");
                 stopWatch.Restart();
-                var transverseWindExposedSurfaces = transverseCalculator.Calculate(containersFromFile);
+                var transverseWindExposedSurfaces = transverseCalculator.Calculate(input);
                 stopWatch.Stop();
                 Console.WriteLine($"Transverse calculation time {stopWatch.ElapsedMilliseconds}ms");
 
@@ -49,102 +61,98 @@ namespace BV2024WindModel
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, transverseWindExposedSurfaces.Starboard);
 
                 stopWatch.Stop();
-                stopWatchTotal.Stop();
                 Console.WriteLine($"Forces calculation time {stopWatch.ElapsedMilliseconds}ms");
+
+                stopWatch.Restart();
+
+                var fileNumber1 = 9;
+                var newContainersFromFile = ReadCSV.ReadFromCsv($"C:\\windLoadFiles\\wind{fileNumber1}Add2B.csv");
+                var longitudinalWindObserver = new LongitudinalWindObserver<string>(vessel);
+                var longitudinalWindObserverResults = longitudinalWindObserver.DetectChangedAreasForAdding(containersFromFile.ToList(), newContainersFromFile.ToList());
+
+
+                var shortResultCalculator = new ObserverResultsCalculator();
+                var longitudinalWindObserverResultsShort = shortResultCalculator.Calculate(longitudinalWindObserverResults);
+
+                stopWatch.Stop();
+                Console.WriteLine($"Added containers calculation time {stopWatch.ElapsedMilliseconds}ms");
+                stopWatchTotal.Stop();
                 Console.WriteLine($"Total calculation time {stopWatchTotal.ElapsedMilliseconds}ms");
 
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine($"ForeWind");
-                foreach (var windExposedFrontSurface in longitudinalWindExposedSurfaces.Fore)
-                {
-                    var windArea = 0.0;
-                    foreach (var containerResult in windExposedFrontSurface.Result)
-                    {
-                        windArea += containerResult.ExposedArea;
-                        string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
-                        //if (containerResult.Area == 0)
-                        //continue;
-                        if (containerResult.ExposedArea != 0.0)
-                            sb.AppendLine($"Id= {containerResult.ContainerId}, Area= {containerResult.ExposedArea:f06}, Force= {containerResult.WindForceForArea:f06}, Points= {polygon}");
-                    }
-                    sb.AppendLine($"XFore= {windExposedFrontSurface.Coordinate:f03}, Area= {windArea:f06}");
-                }
-                /*
-                sb.AppendLine($"________________________________________________________");
-                sb.AppendLine($"AftWind");
-                foreach (var windExposedAftSurface in longitudinalWindExposedSurfaces.Aft)
-                {
-                    var windArea = 0.0;
-                    foreach (var containerResult in windExposedAftSurface.Result)
-                    {
-                        windArea += containerResult.Area;
-                        string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
-                        if (containerResult.Area != 0.0)
-                            sb.AppendLine($"Id= {containerResult.ContainerId}, Area= {containerResult.Area:f06}, Points= {polygon}");
-                    }
-                    sb.AppendLine($"XAft= {windExposedAftSurface.Coordinate:f03}, Area= {windArea:f06}");
-                }
-
-
-
-                sb.AppendLine($"________________________________________________________");
-                sb.AppendLine($"PortsideWind");
-                foreach (var windExposedPortsideSurface in transverseWindExposedSurfaces.Portside)
-                {
-                    var windArea = 0.0;
-                    foreach (var containerResult in windExposedPortsideSurface.Result)
-                    {
-                        windArea += containerResult.Area;
-                        string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
-                        if (containerResult.Area != 0.0)
-                            sb.AppendLine($"Id= {containerResult.ContainerId}, Area= {containerResult.Area:f06}, Points= {polygon}");
-                    }
-                    sb.AppendLine($"Yport= {windExposedPortsideSurface.Coordinate:f03}, Area= {windArea:f06}");
-                }
-                sb.AppendLine($"________________________________________________________");
-                sb.AppendLine($"StarboardWind");
-                foreach (var windExposedStarboardSurface in transverseWindExposedSurfaces.Starboard)
-                {
-                    var windArea = 0.0;
-                    foreach (var containerResult in windExposedStarboardSurface.Result)
-                    {
-                        windArea += containerResult.Area;
-                        string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
-                        if (containerResult.Area != 0.0)
-                            sb.AppendLine($"Id= {containerResult.ContainerId}, Area= {containerResult.Area:f06}, Points= {polygon}");
-                    }
-                    sb.AppendLine($"Ystar= {windExposedStarboardSurface.Coordinate:f03}, Area= {windArea:f06}");
-                }
-               */
-                System.IO.File.WriteAllText($"C:\\windLoadFiles\\wind{fileNumber}ForcesResults.txt", sb.ToString());
+                 
 
                 string longitudinalWindResultsSerialized = JsonConvert.SerializeObject(longitudinalWindExposedSurfaces, Formatting.Indented);
                 string transverseWindResultsSerialized = JsonConvert.SerializeObject(transverseWindExposedSurfaces, Formatting.Indented);
 
-                System.IO.File.WriteAllText($"C:\\windLoadFiles\\longitudinalWind{fileNumber}Results.txt", longitudinalWindResultsSerialized);
-                System.IO.File.WriteAllText($"C:\\windLoadFiles\\transverseWind{fileNumber}Results.txt", transverseWindResultsSerialized);
-                /*
-                var windCalculationResults = WindCalculationResultFactory.Create(windExposedFrontSurfaces);
+                System.IO.File.WriteAllText($"C:\\windLoadFiles\\longitudinalWind{fileNumber}Results2B.txt", longitudinalWindResultsSerialized);
+                System.IO.File.WriteAllText($"C:\\windLoadFiles\\transverseWind{fileNumber}Results2B.txt", transverseWindResultsSerialized);
+                 
+                string longitudinalWindObserverResultsSerialized = JsonConvert.SerializeObject(longitudinalWindObserverResultsShort, Formatting.Indented);
+                 
+                System.IO.File.WriteAllText($"C:\\windLoadFiles\\longitudinalWind{fileNumber}ObserverResults2B.txt", longitudinalWindObserverResultsSerialized);
 
-                
+                PrintAllResults(fileNumber, longitudinalWindExposedSurfaces, transverseWindExposedSurfaces);
 
-                //write string to file
-                System.IO.File.WriteAllText(@"C:\windLoadFiles\wind9Results.txt", windResultsSerialized);
-
-    */
                 Console.ReadLine();
             }
             catch (Exception ex)
-            {
+             {
                 System.IO.File.WriteAllText("exceptions.txt", ex.ToString());
             }
 
         }
 
+        private static void PrintAllResults(int fileNumber, LongitudinalSurfacesCalculationResult longitudinalWindExposedSurfaces, TransverseSurfacesCalculationResult transverseWindExposedSurfaces)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"ForeWind");
+
+            PrintResult(sb, longitudinalWindExposedSurfaces.Fore, "XFore");
+
+            sb.AppendLine($"________________________________________________________");
+            sb.AppendLine($"AftWind");
+            sb.AppendLine($"________________________________________________________");
+            PrintResult(sb, longitudinalWindExposedSurfaces.Aft, "XAft");
+
+
+            sb.AppendLine($"________________________________________________________");
+            sb.AppendLine($"PortsideWind");
+            sb.AppendLine($"________________________________________________________");
+            PrintResult(sb, transverseWindExposedSurfaces.Portside, "YPort");
+
+
+            sb.AppendLine($"________________________________________________________");
+            sb.AppendLine($"StarboardWind");
+            sb.AppendLine($"________________________________________________________");
+            PrintResult(sb, transverseWindExposedSurfaces.Starboard, "YStar");
+
+
+            System.IO.File.WriteAllText($"C:\\windLoadFiles\\wind{fileNumber}ForcesResults2B.txt", sb.ToString());
+        }
+
+        private static void PrintResult(StringBuilder sb, List<SurfaceCalculationResult> surfaceCalculationResult, string coord)
+        {
+            foreach (var windExposedFrontSurface in surfaceCalculationResult)
+            {
+                var windArea = 0.0;
+                foreach (var containerResult in windExposedFrontSurface.Result)
+                {
+                    windArea += containerResult.ExposedArea;
+                    string polygon = PolygonPrinter.Print(containerResult.WindExposedPolygon);
+                    //if (containerResult.Area == 0)
+                    //continue;
+                    if (containerResult.ExposedArea != 0.0)
+                        sb.AppendLine($"Id= {containerResult.ContainerId}, Area= {containerResult.ExposedArea:f06}, Force= {containerResult.WindForceForArea:f06}, Points= {polygon}");
+                }
+                sb.AppendLine(coord + $"= {windExposedFrontSurface.Coordinate:f03}, Area= {windArea:f06}");
+            }
+        }
 
 
     }
 
 
 }
-         
+/*
+      
+      */

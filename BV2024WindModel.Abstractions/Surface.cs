@@ -1,14 +1,15 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Clipper2Lib;
 
 namespace BV2024WindModel.Abstractions
 {
     public class Surface
     { 
-        public PathsD Paths;
-        public double Coordinate;
-        public Bounds Bounds;
-        
+        public PathsD Paths { get; }
+        public double Coordinate { get; }
+        public Bounds Bounds { get; }
+
         public Surface(double coordinate, PathsD paths)
         {
             Coordinate = coordinate;

@@ -5,10 +5,10 @@ namespace BV2024WindModel.Abstractions
 {
     public class Quader
     {
-        public string id { get; }
-        private double lcg { get; }
-        private double tcg { get; }
-        public double basis { get; }
+        public string ID { get; }
+        private double Lcg { get; }
+        private double Tcg { get; }
+        public double Basis { get; }
         public double Length { get; }
         public double Width { get; }
         public double Height { get; }
@@ -28,13 +28,13 @@ namespace BV2024WindModel.Abstractions
         public Bounds LongitudinalBounds { get; }
         public Quader(string id, double lcg, double tcg, double basis, double length, double width, double height)
         {
-            this.id = id;
-            this.lcg = lcg;
-            this.tcg = tcg;
-            this.basis = basis;
-            this.Length = length;
-            this.Width = width;
-            this.Height = height;
+            ID = id;
+            Lcg = lcg;
+            Tcg = tcg;
+            Basis = basis;
+            Length = length;
+            Width = width;
+            Height = height;
             double[] xCoord = { lcg + length / 2, lcg - length / 2 };
             double[] yCoord = { tcg + width / 2, tcg - width / 2 };
             double[] zCoord = { basis + height, basis };

@@ -9,15 +9,13 @@ using BV2024WindModel.Abstractions;
 
 namespace BV2024WindModel.Logic
 {
-    public class BV2024TransverseWindCalculator : AbstractBV2024WindCalculator, ICalculator<IEnumerable<Container>, TransverseSurfacesCalculationResult> 
+    public class BV2024TransverseWindCalculator : AbstractBV2024WindCalculator, ICalculator<WindCalculatorInput, TransverseSurfacesCalculationResult> 
     {
-        public TransverseSurfacesCalculationResult Calculate(in IEnumerable<Container> input)
-        {
-            
-            double alpha = 25;
-            
+        public TransverseSurfacesCalculationResult Calculate(in WindCalculatorInput input)
+        { 
+            double alpha = input.Vessel.Alpha;
 
-            var containers = input.ToList();
+            var containers = input.Containers.ToList();
                
             List<Cluster> clusters = new List<Cluster>();
             var result = new List<IEnumerable<Container>>();

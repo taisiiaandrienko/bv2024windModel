@@ -9,8 +9,7 @@ namespace BV2024WindModel
     {
         public static PathsD DeflatePolygon(Surface protectingSurface, double protectedSurfaceCoordinate, double angle)
         {
-            var containersDist = Math.Abs(protectingSurface.Coordinate - protectedSurfaceCoordinate);
-            //var deckHeight = protectingSurface.Paths.Min(path => path.Min(point => point.y));
+            var containersDist = Math.Abs(protectingSurface.Coordinate - protectedSurfaceCoordinate); 
             var tg = Math.Tan(angle * (Math.PI / 180));
             var offset = -tg * containersDist;
 

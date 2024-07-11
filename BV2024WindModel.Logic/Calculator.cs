@@ -44,7 +44,7 @@ namespace BV2024WindModel.Logic
         private static SurfaceCalculationResult GetWindExposedSurfaceCalculationResult(double alpha, List<Surface> protectingSurfaces, ContainersAtCoordinate affectedSurface)
         {
 
-            var allWindExposedContainers = new List<ContainerCalculationResult>();
+            var allWindExposedContainers = new List<ContainerCalculationResult>(); 
             foreach (var container in affectedSurface.Containers)
             {
                 var containerPoints = (affectedSurface.End  == ContainerEnd.Fore || affectedSurface.End == ContainerEnd.Aft) ? container.PointsYZ : container.PointsXZ;
@@ -93,7 +93,7 @@ namespace BV2024WindModel.Logic
                             {
                                 var deflatedPaths = PolygonDeflator.DeflatePolygon(protectingSurface, affectedSurface.Coordinate, alpha);
                                 if (deflatedPaths != null)
-                                {
+                                { 
                                     windExposedPolygon = Clipper.Difference(windExposedPolygon, deflatedPaths, FillRule.NonZero, 8);
                                     if (windExposedPolygon.Count == 0)
                                         break;
@@ -111,11 +111,11 @@ namespace BV2024WindModel.Logic
                 var fullHeight = container.Height;
                 var fullArea = fullWidth * fullHeight;
                 var exposedArea = AreaCalculator.CalcArea(windExposedPolygon);
-                var volumetricCenter = container.basis + fullHeight / 2;
+                var volumetricCenter = container.Basis + fullHeight / 2;
 
                 var containerCalculationResult = new ContainerCalculationResult
                 {
-                    ContainerId = container.id,
+                    ContainerId = container.ID,
                     FullHeight = fullHeight,
                     FullWidth = fullWidth,
                     VolumetricCenter = volumetricCenter,

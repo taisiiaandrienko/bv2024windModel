@@ -239,3 +239,16 @@ C:\Users\Lenovo\Source\Repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Te
 C:\Users\Lenovo\Source\Repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\obj\Debug\net8.0\BV2024WindModel.Tests.pdb
 C:\Users\Lenovo\Source\Repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\obj\Debug\net8.0\BV2024WindModel.Tests.genruntimeconfig.cache
 C:\Users\Lenovo\Source\Repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\obj\Debug\net8.0\ref\BV2024WindModel.Tests.dll
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\longitudinalWind7Results.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\longitudinalWind9ReferenceResults.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\transverseWind7Results.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\transverseWind9ReferenceResults.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\wind7.csv
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\wind7ForcesResults.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\wind9.csv
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\wind9ForcesResults.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\wind9Add.csv
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\longitudinalWind9ObserverReferenceResults.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\longitudinalWind9ObserverreferenceResultsSmall.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\longitudinalWind7ObserverResults2B1.txt
+C:\Users\Lenovo\source\repos\taisiiaandrienko\bv2024windModel\BV2024WindModel.Tests\bin\Debug\net8.0\TestData\wind7Add2B.csv
