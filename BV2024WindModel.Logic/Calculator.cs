@@ -128,8 +128,6 @@ namespace BV2024WindModel.Logic
             }
 
             var windExposedSurface = new SurfaceCalculationResult { Result = allWindExposedContainers, End = affectedSurface.End, Coordinate = affectedSurface.Coordinate };
-
-            //(frontSurface.Coordinate, frontSurface.Paths);
             return windExposedSurface;
         }
 
@@ -137,7 +135,6 @@ namespace BV2024WindModel.Logic
         {
             foreach (var path in protectingSurface.Paths)
             {
-                //if (protectingSurface.Paths.Count == 1 && protectingSurface.Paths[0].Count == 4)
                 if (path.Count == 4 && protectingSurface.Paths.Count == 1)
                 {
                     if (IsLowerOrSimilar(containerBounds, protectingBounds) && IsRightOrSimilar(containerBounds, protectingBounds) && IsLeftOrSimilar(containerBounds, protectingBounds))

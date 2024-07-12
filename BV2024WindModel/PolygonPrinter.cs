@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Clipper2Lib;
-using Macs3.Core.Mathematics.GeneralPolygonClipperLibrary;
+﻿using Clipper2Lib;
 
 namespace BV2024WindModel
 {

@@ -62,16 +62,13 @@ namespace BV2024WindModel.Abstractions
             var foreBound = Math.Round(lcg + length / 2, 3);
             AftSurface = new Surface(Math.Round(lcg - length / 2, 3), PointsYZ);
             ForeSurface = new Surface(Math.Round(lcg + length / 2, 3), PointsYZ);
-            LongitudinalBounds = new Bounds { MinX = aftBound, MaxX = foreBound, MinY = basis, MaxY = basis + height };
-
+            LongitudinalBounds = new Bounds { MinX = aftBound, MaxX = foreBound, MinY = basis, MaxY = basis + height }; 
 
             var portsideBound = Math.Round(tcg - width / 2, 3);
             var starboardBound = Math.Round(tcg + width / 2, 3);
             PortsideSurface = new Surface(Math.Round(tcg - width / 2, 3), PointsXZ); 
             StarboardSurface = new Surface(Math.Round(tcg + width / 2, 3), PointsXZ);
-            TransverseBounds = new Bounds { MinX = portsideBound, MaxX = starboardBound, MinY = basis, MaxY = basis + height };
-
-
+            TransverseBounds = new Bounds { MinX = portsideBound, MaxX = starboardBound, MinY = basis, MaxY = basis + height }; 
         }
 
     }

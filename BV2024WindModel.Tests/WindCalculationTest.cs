@@ -12,7 +12,7 @@ namespace BV2024WindModel.Tests
     {
         [TestMethod]
         [DataRow(".\\TestData\\wind9.csv", ".\\TestData\\longitudinalWind9ReferenceResults.txt")]
-        [DataRow(".\\TestData\\wind7.csv", ".C:\\TestData\\referenceLongitudinalWind7Results2B.txt")]
+        [DataRow(".\\TestData\\wind7.csv", ".\\TestData\\referenceLongitudinalWind7Results2B.txt")]
         public void LonitudinalCalculationCorrectnessTest(string inputFileName, string inputReferenceResultsFileName)
         {
             var allContainersFromFile = ReadCSV.ReadFromCsv(inputFileName);
@@ -29,7 +29,8 @@ namespace BV2024WindModel.Tests
             var longitudinalWindExposedSurfaces = longitudinalCalculator.Calculate(input);
 
             var forcesCalculator = new WindForceCalculator();
-            var externalParametrs = new WindForcesExternalCalculationParameters { Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
+            var externalParametrs = new WindForcesExternalCalculationParameters(0, 1.225, 15, 0.11);
+            //{ Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
 
             WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, longitudinalWindExposedSurfaces.Fore);
             WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, longitudinalWindExposedSurfaces.Aft);
@@ -51,7 +52,7 @@ namespace BV2024WindModel.Tests
 
         [TestMethod]
         [DataRow(".\\TestData\\wind9.csv",".\\TestData\\transverseWind9ReferenceResults.txt")]
-        [DataRow(".\\TestData\\wind7.csv", ".C:\\TestData\\referenceTransverseWind7Results2B.txt")]
+        [DataRow(".\\TestData\\wind7.csv", ".\\TestData\\referenceTransverseWind7Results2B.txt")]
         public void TransverseCorrectnessTest(string inputFileName, string inputReferenceResultsFileName)
         {
             var allContainersFromFile = ReadCSV.ReadFromCsv(inputFileName);
@@ -68,7 +69,8 @@ namespace BV2024WindModel.Tests
             var transverseWindExposedSurfaces = transverseCalculator.Calculate(input);
 
             var forcesCalculator = new WindForceCalculator();
-            var externalParametrs = new WindForcesExternalCalculationParameters { Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
+            var externalParametrs = new WindForcesExternalCalculationParameters(0, 1.225, 15, 0.11);
+            //{ Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
 
             WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, transverseWindExposedSurfaces.Portside);
             WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, transverseWindExposedSurfaces.Starboard);
@@ -208,7 +210,7 @@ namespace BV2024WindModel.Tests
 
         [TestMethod]
         [DataRow(".\\TestData\\wind9.csv", ".\\TestData\\wind9Add.csv", ".\\TestData\\longitudinalWind9ObserverReferenceResultsSmall.txt")]
-        [DataRow(".\\TestData\\wind7.csv", ".\\TestData\\wind7Add2.csv", ".\\TestData\\referenceLongitudinalWind7ObserverResults2B.txt")]
+        [DataRow(".\\TestData\\wind7.csv", ".\\TestData\\wind7Add2B.csv", ".\\TestData\\referenceLongitudinalWind7ObserverResults2B.txt")]
         //[DataRow(".\\TestData\\wind7.csv", ".\\TestData\\transverseWind7Results.txt")]
         public void WindObserverCorrectnessTest(string inputFileName, string changesFileName, string inputReferenceResultsFileName)
         {

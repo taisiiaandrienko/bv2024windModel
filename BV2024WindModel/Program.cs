@@ -20,14 +20,8 @@ namespace BV2024WindModel
 
             try
             {
-                var fileNumber =7;
-                var buildings = new List<Building>();
-                var building1 = new Building("1", 212.65, 0, 29, 14.3, 50, 33);
-                buildings.Add(building1);
-                var building2 = new Building("2", 56.5, 0, 29, 9, 50, 31);
-                buildings.Add(building2);
-                var vessel = new Vessel(30, buildings, 25);
-
+                var fileNumber = 9;
+                var vessel = GetVessel();
 
                 var allContainersFromFile = ReadCSV.ReadFromCsv($"C:\\windLoadFiles\\wind{fileNumber}.csv");
                 //container on deck, which are below hatch cover will not be calculated
@@ -52,7 +46,7 @@ namespace BV2024WindModel
                 stopWatch.Restart();
 
                 var forcesCalculator = new WindForceCalculator();
-                var externalParametrs = new WindForcesExternalCalculationParameters { Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
+                var externalParametrs = new WindForcesExternalCalculationParameters(0, 1.225, 15, 0.11);// { Draft = 15, WindSpeed = 35, AirDencity = 1.225, WaterSurfaceRoughnessCoefficient = 0.11 };
 
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, longitudinalWindExposedSurfaces.Fore);
                 WindForcesCalculator.Calculate(forcesCalculator, externalParametrs, longitudinalWindExposedSurfaces.Aft);
@@ -79,16 +73,16 @@ namespace BV2024WindModel
                 stopWatchTotal.Stop();
                 Console.WriteLine($"Total calculation time {stopWatchTotal.ElapsedMilliseconds}ms");
 
-                 
+
 
                 string longitudinalWindResultsSerialized = JsonConvert.SerializeObject(longitudinalWindExposedSurfaces, Formatting.Indented);
                 string transverseWindResultsSerialized = JsonConvert.SerializeObject(transverseWindExposedSurfaces, Formatting.Indented);
 
                 System.IO.File.WriteAllText($"C:\\windLoadFiles\\longitudinalWind{fileNumber}Results2B.txt", longitudinalWindResultsSerialized);
                 System.IO.File.WriteAllText($"C:\\windLoadFiles\\transverseWind{fileNumber}Results2B.txt", transverseWindResultsSerialized);
-                 
+
                 string longitudinalWindObserverResultsSerialized = JsonConvert.SerializeObject(longitudinalWindObserverResultsShort, Formatting.Indented);
-                 
+
                 System.IO.File.WriteAllText($"C:\\windLoadFiles\\longitudinalWind{fileNumber}ObserverResults2B.txt", longitudinalWindObserverResultsSerialized);
 
                 PrintAllResults(fileNumber, longitudinalWindExposedSurfaces, transverseWindExposedSurfaces);
@@ -100,6 +94,17 @@ namespace BV2024WindModel
                 System.IO.File.WriteAllText("exceptions.txt", ex.ToString());
             }
 
+        }
+
+        private static Vessel GetVessel()
+        {
+            var buildings = new List<Building>();
+            var building1 = new Building("1", 212.65, 0, 29, 14.3, 50, 33);
+            buildings.Add(building1);
+            var building2 = new Building("2", 56.5, 0, 29, 9, 50, 31);
+            buildings.Add(building2);
+            var vessel = new Vessel(30, buildings, 25);
+            return vessel;
         }
 
         private static void PrintAllResults(int fileNumber, LongitudinalSurfacesCalculationResult longitudinalWindExposedSurfaces, TransverseSurfacesCalculationResult transverseWindExposedSurfaces)

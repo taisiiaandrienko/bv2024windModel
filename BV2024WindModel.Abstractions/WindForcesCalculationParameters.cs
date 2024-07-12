@@ -12,12 +12,5 @@
             ExternalParameters = externalParametrs;
         }
     }
-    public class WindForcesExternalCalculationParameters
-    {
-        public double WindSpeed;
-        public double AirDencity;
-        public double Draft; 
-        public double WaterSurfaceRoughnessCoefficient;  
-    }
 
 }

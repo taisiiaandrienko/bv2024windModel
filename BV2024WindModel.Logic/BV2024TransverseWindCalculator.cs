@@ -106,7 +106,5 @@ namespace BV2024WindModel.Logic
             return protecting.LongitudinalBounds.MaxX >= container.LongitudinalBounds.MinX && protecting.LongitudinalBounds.MinX <= container.LongitudinalBounds.MaxX;
         }
     }
-
-
 }
 
