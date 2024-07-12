@@ -361,3 +361,34 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/BV2024WindModel/bin/Debug/BV2024WindModel.Abstractions.dll
+/BV2024WindModel/bin/Debug/BV2024WindModel.Abstractions.pdb
+/BV2024WindModel/bin/Debug/BV2024WindModel.Data.dll
+/BV2024WindModel/bin/Debug/BV2024WindModel.Data.pdb
+/BV2024WindModel/bin/Debug/BV2024WindModel.Logic.dll
+/BV2024WindModel/bin/Debug/BV2024WindModel.Logic.pdb
+/BV2024WindModel.Logic/bin/Debug/netstandard2.0/BV2024WindModel.Abstractions.dll
+/BV2024WindModel.Logic/bin/Debug/netstandard2.0/BV2024WindModel.Abstractions.pdb
+/BV2024WindModel.Logic/bin/Debug/netstandard2.0/BV2024WindModel.Logic.dll
+/BV2024WindModel.Logic/bin/Debug/netstandard2.0/BV2024WindModel.Logic.pdb
+/BV2024WindModel/obj/Debug/BV2024WindModel.csproj.AssemblyReference.cache
+/BV2024WindModel.Abstractions/bin/Debug/netstandard2.0/BV2024WindModel.Abstractions.dll
+/BV2024WindModel.Abstractions/bin/Debug/netstandard2.0/BV2024WindModel.Abstractions.pdb
+/BV2024WindModel.Data/obj/Debug/netstandard2.0/BV2024WindModel.Data.AssemblyInfoInputs.cache
+/BV2024WindModel.Data/obj/Debug/netstandard2.0/BV2024WindModel.Data.csproj.AssemblyReference.cache
+/BV2024WindModel.Data/obj/Debug/netstandard2.0/BV2024WindModel.Data.dll
+/BV2024WindModel.Data/obj/Debug/netstandard2.0/BV2024WindModel.Data.pdb
+/BV2024WindModel.Logic/obj/Debug/netstandard2.0/BV2024WindModel.Logic.AssemblyInfoInputs.cache
+/BV2024WindModel.Logic/obj/Debug/netstandard2.0/BV2024WindModel.Logic.csproj.AssemblyReference.cache
+/BV2024WindModel.Logic/obj/Debug/netstandard2.0/BV2024WindModel.Logic.dll
+/BV2024WindModel.Logic/obj/Debug/netstandard2.0/BV2024WindModel.Logic.pdb
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Abstractions.dll
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Abstractions.pdb
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Data.dll
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Data.pdb
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Logic.dll
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Logic.pdb
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Tests.dll
+/BV2024WindModel.Tests/bin/Debug/net8.0/BV2024WindModel.Tests.pdb
+/BV2024WindModel.Tests/obj/Debug/net8.0/refint/BV2024WindModel.Tests.dll
+/BV2024WindModel.Tests/obj/Debug/net8.0/ref/BV2024WindModel.Tests.dll
