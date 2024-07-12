@@ -11,6 +11,8 @@ namespace BV2024WindModel.Tests
     public class WindCalculationTest
     {
         [TestMethod]
+        //recalculated containers(aft) 500278(bilding), 500272(bilding+bay), 500780(bilding)
+        //530280(bilding), 530780(bilding), 570780, 571282, 591372-80, 591472-80
         [DataRow(".\\TestData\\wind9.csv", ".\\TestData\\longitudinalWind9ReferenceResults.txt")]
         [DataRow(".\\TestData\\wind7.csv", ".\\TestData\\referenceLongitudinalWind7Results2B.txt")]
         public void LonitudinalCalculationCorrectnessTest(string inputFileName, string inputReferenceResultsFileName)
